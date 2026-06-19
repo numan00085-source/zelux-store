@@ -35,12 +35,17 @@ function Reveal({ children, className = '', delay = 0 }) {
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState({
+    heroSubtitle: 'Est. 2024 - Luxury Redefined',
+    announcementText: 'Free Shipping on Orders Over $150 - Worldwide Delivery - Secure Checkout - New Arrivals Weekly',
+  });
 
   useEffect(() => {
     fetch('/api/products-list')
       .then(r => r.json())
       .then(data => { setProducts(data); setLoading(false); })
       .catch(() => setLoading(false));
+    fetch('/api/settings').then(r => r.json()).then(setSettings).catch(() => {});
   }, []);
 
   const featured = products.filter(p => p.featured && p.inStock !== false);
@@ -66,7 +71,7 @@ export default function Home() {
                 className="w-44 sm:w-56 drop-shadow-[0_0_30px_rgba(63,216,242,0.45)] animate-glow-pulse"
               />
             </div>
-            <p className="text-xs tracking-[0.3em] uppercase text-zelux-cyan-dark mb-10 font-light animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Est. 2024 &mdash; Luxury Redefined</p>
+            <p className="text-xs tracking-[0.3em] uppercase text-zelux-cyan-dark mb-10 font-light animate-fade-in-up" style={{ animationDelay: '0.3s' }}>{settings.heroSubtitle}</p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
               <Link href="/collections/all" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-4 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow-lg hover:scale-105 transition-all duration-300">
@@ -87,7 +92,7 @@ export default function Home() {
           <div className="inline-flex animate-marquee">
             {[...Array(2)].map((_, i) => (
               <span key={i} className="text-xs tracking-widest uppercase text-zelux-gray px-8">
-                Free Shipping on Orders Over $150 &nbsp;&middot;&nbsp; Worldwide Delivery &nbsp;&middot;&nbsp; Secure Checkout &nbsp;&middot;&nbsp; New Arrivals Weekly &nbsp;&middot;&nbsp;
+                {settings.announcementText} &nbsp;&middot;&nbsp;
               </span>
             ))}
           </div>
