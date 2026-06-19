@@ -1,11 +1,101 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background-color: #FAFAFA; color: #0A0A0A; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #F2F2F2; }
-::-webkit-scrollbar-thumb { background: #C9A84C; }
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #060B16;
+  color: #F4F8FB;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0B1526; }
+::-webkit-scrollbar-thumb { background: #3FD8F2; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #7BE8FA; }
+
+/* Glow text effect for ZELUX branding */
+.glow-text {
+  text-shadow: 0 0 8px rgba(63, 216, 242, 0.6), 0 0 24px rgba(63, 216, 242, 0.3);
+}
+
+/* Animated gradient border on hover */
+.hover-glow-border {
+  position: relative;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.hover-glow-border:hover {
+  box-shadow: 0 0 20px rgba(63, 216, 242, 0.35);
+  border-color: #3FD8F2;
+}
+
+/* Shimmer skeleton loading */
+.shimmer-bg {
+  background: linear-gradient(90deg, #0F1B30 25%, #1A2740 50%, #0F1B30 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* Scroll reveal base state */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Button ripple/glow press effect */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(63, 216, 242, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+.btn-glow:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Card hover lift */
+.card-lift {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(63, 216, 242, 0.15);
+}
+
+/* Animated underline for nav links */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 0; height: 1px;
+  background: #3FD8F2;
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
