@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { products, getProductBySlug } from '../../lib/products';
 import { useCartStore, useWishlistStore } from '../../lib/store';
 
-export default function ProductPage({ product }) {
+export default function ProductPage() {
+  const router = useRouter();
+  const { slug } = router.query;
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedImg, setSelectedImg] = useState(0);
   const [qty, setQty] = useState(1);
@@ -13,14 +17,27 @@ export default function ProductPage({ product }) {
   const toggle = useWishlistStore(s => s.toggle);
   const isWishlisted = useWishlistStore(s => s.isWishlisted(product?.id));
 
-  if (!product) return <div className="pt-32 text-center">Product not found.</div>;
+  useEffect(() => {
+    if (!slug) return;
+    fetch('/api/products-list')
+      .then(r => r.json())
+      .then(data => {
+        const found = data.find(p => p.slug === slug);
+        setProduct(found || null);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) return <><Navbar /><div className="pt-32 text-center text-gray-400 text-sm">Loading...</div></>;
+  if (!product) return <><Navbar /><div className="pt-32 text-center">Product not found.</div></>;
 
   const isApparel = product.category === 'apparel' || product.category === 'footwear';
   const variantOptions = isApparel ? product.sizes : product.variants;
 
   const handleAddToCart = () => {
-    if (!selectedVariant) { alert('Please select a size or variant.'); return; }
-    addToCart(product, selectedVariant, qty);
+    if (variantOptions && variantOptions.length > 0 && !selectedVariant) { alert('Please select a size or variant.'); return; }
+    addToCart(product, selectedVariant || 'Standard', qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -53,7 +70,7 @@ export default function ProductPage({ product }) {
               {product.originalPrice && <span className="text-lg text-gray-400 line-through">${product.originalPrice}</span>}
             </div>
             <p className="text-sm text-gray-600 leading-relaxed mb-8">{product.description}</p>
-            {variantOptions && (
+            {variantOptions && variantOptions.length > 0 && (
               <div className="mb-6">
                 <p className="text-xs tracking-widest uppercase text-gray-500 mb-3">{isApparel ? 'Select Size' : 'Select Variant'}</p>
                 <div className="flex flex-wrap gap-2">
@@ -72,20 +89,20 @@ export default function ProductPage({ product }) {
                 <span className="w-12 text-center text-sm">{qty}</span>
                 <button onClick={() => setQty(qty + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-50">+</button>
               </div>
-              <button onClick={() => toggle(product)} className={`w-10 h-10 border flex items-center justify-center transition-colors ${isWishlisted ? 'bg-black border-black text-white' : 'border-gray-300 hover:border-black'}`}>
-                <svg className="w-4 h-4" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
+              <button onClick={() => toggle(product)} className={`w-10 h-10 border flex items-center justify-center transition-colors ${isWishlisted ? 'bg-black border-black text-white' : 'border-gray-300 hover:border-black'}`}>♡</button>
             </div>
-            <button onClick={handleAddToCart} className={`w-full py-4 text-xs tracking-widest uppercase font-medium transition-all duration-300 ${added ? 'bg-green-600 text-white' : 'bg-black text-white hover:bg-yellow-500 hover:text-black'}`}>
-              {added ? '✓ Added to Cart' : 'Add to Cart'}
-            </button>
+            {product.inStock === false ? (
+              <button disabled className="w-full py-4 text-xs tracking-widest uppercase font-medium bg-gray-200 text-gray-500 cursor-not-allowed">Out of Stock</button>
+            ) : (
+              <button onClick={handleAddToCart} className={`w-full py-4 text-xs tracking-widest uppercase font-medium transition-all duration-300 ${added ? 'bg-green-600 text-white' : 'bg-black text-white hover:bg-yellow-500 hover:text-black'}`}>
+                {added ? '✓ Added to Cart' : 'Add to Cart'}
+              </button>
+            )}
             {product.details && (
               <div className="mt-10 border-t border-gray-100 pt-8">
                 <h3 className="text-xs tracking-widest uppercase mb-4">Product Details</h3>
                 <ul className="space-y-2">
-                  {product.details.map(d => <li key={d} className="text-sm text-gray-600 flex items-center gap-2"><span className="w-1 h-1 bg-yellow-500 rounded-full inline-block"></span>{d}</li>)}
+                  {product.details.map(d => <li key={d} className="text-sm text-gray-600">· {d}</li>)}
                 </ul>
               </div>
             )}
@@ -106,13 +123,4 @@ export default function ProductPage({ product }) {
       <Footer />
     </>
   );
-}
-
-export async function getStaticPaths() {
-  return { paths: products.map(p => ({ params: { slug: p.slug } })), fallback: false };
-}
-
-export async function getStaticProps({ params }) {
-  const product = getProductBySlug(params.slug);
-  return { props: { product: product || null } };
 }
