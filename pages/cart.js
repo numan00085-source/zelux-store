@@ -2,56 +2,59 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Link from 'next/link';
 import { useCartStore } from '../lib/store';
+import { useState, useEffect } from 'react';
 
 export default function Cart() {
   const cart = useCartStore(s => s.cart);
   const removeFromCart = useCartStore(s => s.removeFromCart);
   const updateQty = useCartStore(s => s.updateQty);
   const total = useCartStore(s => s.total());
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   return (
     <>
       <Navbar />
-      <main className="pt-16 max-w-5xl mx-auto px-4 sm:px-6 py-16 min-h-screen">
-        <h1 className="font-display text-4xl font-light mb-10">Shopping Cart</h1>
-        {cart.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-400 mb-6">Your cart is empty.</p>
-            <Link href="/collections/all" className="bg-black text-white px-10 py-3 text-xs tracking-widest uppercase hover:bg-yellow-500 hover:text-black transition-colors">Continue Shopping</Link>
+      <main className="pt-16 max-w-5xl mx-auto px-4 sm:px-6 py-16 min-h-screen bg-zelux-navy">
+        <h1 className="font-display text-4xl font-light mb-10 text-zelux-white">Shopping Cart</h1>
+        {!hydrated ? null : cart.length === 0 ? (
+          <div className="text-center py-20 animate-fade-in">
+            <p className="text-zelux-gray mb-6">Your cart is empty.</p>
+            <Link href="/collections/all" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">Continue Shopping</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-5">
               {cart.map(item => (
-                <div key={item.key} className="flex gap-4 py-6 border-b border-gray-100">
-                  <img src={item.images[0]} alt={item.name} className="w-24 h-24 object-cover bg-gray-50" />
+                <div key={item.key} className="flex gap-4 p-5 bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-xl hover:border-zelux-cyan/30 transition-colors duration-300">
+                  <img src={item.images[0]} alt={item.name} className="w-24 h-24 object-cover bg-zelux-navy-light rounded-lg" />
                   <div className="flex-1">
-                    <h3 className="font-display text-lg font-light">{item.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{item.selectedVariant}</p>
+                    <h3 className="font-display text-lg font-light text-zelux-white">{item.name}</h3>
+                    <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center border border-gray-200">
-                        <button onClick={() => item.quantity > 1 ? updateQty(item.key, item.quantity - 1) : removeFromCart(item.key)} className="w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-50">−</button>
-                        <span className="w-8 text-center text-sm">{item.quantity}</span>
-                        <button onClick={() => updateQty(item.key, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-50">+</button>
+                      <div className="flex items-center border border-zelux-gray-mid/40 rounded-lg">
+                        <button onClick={() => item.quantity > 1 ? updateQty(item.key, item.quantity - 1) : removeFromCart(item.key)} className="w-8 h-8 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">&minus;</button>
+                        <span className="w-8 text-center text-sm text-zelux-white">{item.quantity}</span>
+                        <button onClick={() => updateQty(item.key, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">+</button>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
-                        <button onClick={() => removeFromCart(item.key)} className="text-xs text-gray-400 hover:text-black underline">Remove</button>
+                        <span className="font-semibold text-zelux-cyan">${(item.price * item.quantity).toFixed(2)}</span>
+                        <button onClick={() => removeFromCart(item.key)} className="text-xs text-zelux-gray hover:text-red-400 underline transition-colors">Remove</button>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="bg-gray-50 p-8 h-fit">
-              <h2 className="font-display text-2xl font-light mb-6">Order Summary</h2>
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm"><span>Subtotal</span><span>${total.toFixed(2)}</span></div>
-                <div className="flex justify-between text-sm"><span>Shipping</span><span>{total >= 150 ? 'Free' : '$9.99'}</span></div>
-                <div className="border-t border-gray-200 pt-3 flex justify-between font-medium"><span>Total</span><span>${(total >= 150 ? total : total + 9.99).toFixed(2)}</span></div>
+            <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-8 h-fit">
+              <h2 className="font-display text-2xl font-light mb-6 text-zelux-white">Order Summary</h2>
+              <div className="space-y-3 mb-6 text-zelux-gray">
+                <div className="flex justify-between text-sm"><span>Subtotal</span><span className="text-zelux-white">${total.toFixed(2)}</span></div>
+                <div className="flex justify-between text-sm"><span>Shipping</span><span className="text-zelux-white">{total >= 150 ? 'Free' : '$9.99'}</span></div>
+                <div className="border-t border-zelux-gray-mid/30 pt-3 flex justify-between font-medium text-zelux-white"><span>Total</span><span className="text-zelux-cyan font-semibold">${(total >= 150 ? total : total + 9.99).toFixed(2)}</span></div>
               </div>
-              <Link href="/checkout" className="block w-full bg-black text-white text-center py-4 text-xs tracking-widest uppercase hover:bg-yellow-500 hover:text-black transition-colors">Proceed to Checkout</Link>
-              <p className="text-xs text-gray-400 text-center mt-4">Free shipping on orders over $150</p>
+              <Link href="/checkout" className="btn-glow block w-full bg-zelux-cyan text-zelux-navy text-center py-4 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow-lg hover:scale-[1.02] transition-all duration-300">Proceed to Checkout</Link>
+              <p className="text-xs text-zelux-gray text-center mt-4">Free shipping on orders over $150</p>
             </div>
           </div>
         )}
