@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
+import AdSlot from '../../components/AdSlot';
 import Footer from '../../components/Footer';
 import { useCartStore, useWishlistStore } from '../../lib/store';
 
@@ -134,6 +135,9 @@ export default function ProductPage() {
           </div>
         </div>
       </main>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <AdSlot placement="product-page" />
+      </div>
       <Footer />
     </>
   );
