@@ -11,19 +11,20 @@ export default function OrderSuccess() {
   return (
     <>
       <Navbar />
-      <main className="pt-16 min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <main className="pt-16 min-h-screen flex items-center justify-center px-4 bg-zelux-navy relative overflow-hidden">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-zelux-cyan/8 rounded-full blur-3xl"></div>
+        <div className="text-center max-w-md relative animate-scale-in">
+          <div className="w-16 h-16 bg-zelux-cyan rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow-lg">
+            <svg className="w-8 h-8 text-zelux-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="font-display text-4xl font-light mb-4">Order Confirmed</h1>
-          <p className="text-gray-500 mb-3 text-sm">Thank you for your purchase. Your order is being prepared with care.</p>
-          <p className="text-gray-400 text-xs mb-8">Track your order status in your profile, or reach out to us on Instagram @zelux.us for any inquiries.</p>
+          <h1 className="font-display text-4xl font-light mb-4 text-zelux-white glow-text">Order Confirmed</h1>
+          <p className="text-zelux-gray mb-3 text-sm">Thank you for your purchase. Your order is being prepared with care.</p>
+          <p className="text-zelux-gray text-xs mb-8">Track your order status in your profile, or reach out to us on Instagram @zelux.us for any inquiries.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/profile" className="bg-black text-white px-8 py-3 text-xs tracking-widest uppercase hover:bg-yellow-500 hover:text-black transition-colors">My Orders</Link>
-            <Link href="/" className="border border-black text-black px-8 py-3 text-xs tracking-widest uppercase hover:bg-black hover:text-white transition-colors">Continue Shopping</Link>
+            <Link href="/profile" className="btn-glow bg-zelux-cyan text-zelux-navy px-8 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">My Orders</Link>
+            <Link href="/" className="border border-zelux-gray-mid/40 text-zelux-white px-8 py-3 text-xs tracking-widest uppercase rounded-full hover:border-zelux-cyan/50 hover:text-zelux-cyan transition-all duration-300">Continue Shopping</Link>
           </div>
         </div>
       </main>
