@@ -19,8 +19,15 @@ export default function Login() {
   const handleSubmit = () => {
     if (!form.email || !form.password) { setError('Please fill in all fields.'); return; }
     setLoading(true);
+    const finalName = form.name || form.email.split('@')[0];
+    fetch('/api/register-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: form.email, name: finalName }),
+    }).catch(() => {}); // Don't block login if this fails
+
     setTimeout(() => {
-      setUser({ name: form.name || form.email.split('@')[0], email: form.email, id: Date.now() });
+      setUser({ name: finalName, email: form.email, id: Date.now() });
       router.push('/profile');
     }, 400);
   };
