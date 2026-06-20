@@ -35,26 +35,37 @@ export default function Cart() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2 space-y-5">
               {cart.map(item => (
-                <div key={item.key} className="flex gap-4 p-5 bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-xl hover:border-zelux-cyan/30 transition-colors duration-300">
-                  <img src={item.images[0]} alt={item.name} className="w-24 h-24 object-cover bg-zelux-navy-light rounded-lg" />
-                  <div className="flex-1">
-                    <h3 className="font-display text-lg font-light text-zelux-white">{item.name}</h3>
-                    <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
-                    {item.customization && (item.customization.name || item.customization.number) && (
-                      <p className="text-[11px] text-zelux-cyan mt-0.5">
-                        Custom: {item.customization.name} {item.customization.number}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center border border-zelux-gray-mid/40 rounded-lg">
-                        <button onClick={() => item.quantity > 1 ? updateQty(item.key, item.quantity - 1) : removeFromCart(item.key)} className="w-8 h-8 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">&minus;</button>
+                <div key={item.key} className="flex flex-col sm:flex-row gap-4 p-4 sm:p-5 bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-xl hover:border-zelux-cyan/30 transition-colors duration-300">
+                  <div className="flex gap-4">
+                    <img src={item.images[0]} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 object-cover bg-zelux-navy-light rounded-lg flex-shrink-0" />
+                    <div className="flex-1 min-w-0 sm:hidden">
+                      <h3 className="font-display text-base font-light text-zelux-white leading-snug">{item.name}</h3>
+                      <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
+                      {item.customization && (item.customization.name || item.customization.number) && (
+                        <p className="text-[11px] text-zelux-cyan mt-0.5">
+                          Custom: {item.customization.name} {item.customization.number}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="hidden sm:block">
+                      <h3 className="font-display text-lg font-light text-zelux-white">{item.name}</h3>
+                      <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
+                      {item.customization && (item.customization.name || item.customization.number) && (
+                        <p className="text-[11px] text-zelux-cyan mt-0.5">
+                          Custom: {item.customization.name} {item.customization.number}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
+                      <div className="flex items-center border border-zelux-gray-mid/40 rounded-lg flex-shrink-0">
+                        <button onClick={() => item.quantity > 1 ? updateQty(item.key, item.quantity - 1) : removeFromCart(item.key)} className="w-9 h-9 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">&minus;</button>
                         <span className="w-8 text-center text-sm text-zelux-white">{item.quantity}</span>
-                        <button onClick={() => updateQty(item.key, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">+</button>
+                        <button onClick={() => updateQty(item.key, item.quantity + 1)} className="w-9 h-9 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">+</button>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="font-semibold text-zelux-cyan">${(item.price * item.quantity).toFixed(2)}</span>
-                        <button onClick={() => removeFromCart(item.key)} className="text-xs text-zelux-gray hover:text-red-400 underline transition-colors">Remove</button>
-                      </div>
+                      <span className="font-semibold text-zelux-cyan ml-auto">${(item.price * item.quantity).toFixed(2)}</span>
+                      <button onClick={() => removeFromCart(item.key)} className="text-xs text-zelux-gray hover:text-red-400 underline transition-colors px-1 py-1 flex-shrink-0">Remove</button>
                     </div>
                   </div>
                 </div>

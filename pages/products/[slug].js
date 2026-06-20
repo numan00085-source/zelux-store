@@ -15,6 +15,7 @@ export default function ProductPage() {
   const [customName, setCustomName] = useState('');
   const [customNumber, setCustomNumber] = useState('');
   const [selectedImg, setSelectedImg] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const addToCart = useCartStore(s => s.addToCart);
@@ -70,7 +71,7 @@ export default function ProductPage() {
       <main className="pt-16 max-w-7xl mx-auto px-4 sm:px-6 py-16 bg-zelux-navy min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="animate-fade-in">
-            <div className="aspect-square overflow-hidden bg-zelux-navy-card rounded-2xl border border-zelux-gray-mid/30">
+            <div className="aspect-square overflow-hidden bg-zelux-navy-card rounded-2xl border border-zelux-gray-mid/30 cursor-zoom-in" onClick={() => setLightboxOpen(true)}>
               <img src={product.images[selectedImg]} alt={product.name} className="w-full h-full object-cover" />
             </div>
             {product.images.length > 1 && (
@@ -174,6 +175,25 @@ export default function ProductPage() {
           </div>
         </div>
       </main>
+
+      {lightboxOpen && (
+        <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setLightboxOpen(false)}>
+          <button onClick={() => setLightboxOpen(false)} className="absolute top-5 right-5 text-zelux-white hover:text-zelux-cyan text-3xl leading-none transition-colors">&times;</button>
+          {product.images.length > 1 && (
+            <button onClick={e => { e.stopPropagation(); setSelectedImg((selectedImg - 1 + product.images.length) % product.images.length); }}
+              className="absolute left-4 sm:left-8 text-zelux-white hover:text-zelux-cyan transition-colors">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+          )}
+          <img src={product.images[selectedImg]} alt={product.name} className="max-w-full max-h-[90vh] object-contain animate-scale-in" onClick={e => e.stopPropagation()} />
+          {product.images.length > 1 && (
+            <button onClick={e => { e.stopPropagation(); setSelectedImg((selectedImg + 1) % product.images.length); }}
+              className="absolute right-4 sm:right-8 text-zelux-white hover:text-zelux-cyan transition-colors">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" /></svg>
+            </button>
+          )}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <AdSlot placement="product-page" />
       </div>

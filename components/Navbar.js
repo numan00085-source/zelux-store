@@ -21,6 +21,7 @@ export default function Navbar() {
     { key: 'apparel', label: navLabels.navLinkApparel },
     { key: 'footwear', label: navLabels.navLinkFootwear },
     { key: 'electronics', label: navLabels.navLinkElectronics },
+    { key: 'all', label: 'Shop All' },
   ];
 
   return (
@@ -42,7 +43,7 @@ export default function Navbar() {
         </div>
 
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group">
-          <span className="font-display text-2xl font-light tracking-widest text-zelux-white glow-text group-hover:text-zelux-cyan transition-colors duration-300">ZELUX</span>
+          <span className="font-display text-2xl font-light tracking-widest rainbow-text transition-all duration-300">ZELUX</span>
         </Link>
 
         <div className="flex items-center gap-5">

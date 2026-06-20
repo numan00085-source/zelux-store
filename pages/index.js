@@ -72,14 +72,18 @@ export default function Home() {
 
         {/* HERO */}
         <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-zelux-navy">
-          {/* Rotating background category images, admin-controlled */}
-          {(settings.heroImages || []).map((img, i) => (
+          {/* Rotating background category images, admin-controlled. Only render current + previous for smooth crossfade without loading all images at once. */}
+          {(settings.heroImages || []).length > 0 && [
+            (heroImgIndex - 1 + settings.heroImages.length) % settings.heroImages.length,
+            heroImgIndex,
+          ].map((idx, layer) => (
             <div
-              key={i}
+              key={idx}
               className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1500ms]"
               style={{
-                backgroundImage: `url(${img})`,
-                opacity: i === heroImgIndex ? 0.32 : 0,
+                backgroundImage: `url(${settings.heroImages[idx]})`,
+                opacity: layer === 1 ? 0.32 : 0,
+                zIndex: layer,
               }}
             ></div>
           ))}
@@ -91,7 +95,7 @@ export default function Home() {
 
           <div className="relative text-center px-4 max-w-3xl mx-auto z-10">
             <p className="text-xs tracking-widest uppercase text-zelux-cyan mb-6 animate-fade-in-up" style={{ animationDelay: '0.05s' }}>New Collection 2026</p>
-            <h1 className="font-display text-7xl sm:text-9xl font-light tracking-widest mb-2 text-zelux-white glow-text animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <h1 className="font-display text-7xl sm:text-9xl font-light tracking-widest mb-2 rainbow-text animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               ZELUX
             </h1>
             <p className="text-xs tracking-[0.3em] uppercase text-zelux-cyan-dark mb-10 font-light animate-fade-in-up" style={{ animationDelay: '0.3s' }}>{settings.heroSubtitle}</p>
