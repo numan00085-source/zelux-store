@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 import Link from 'next/link';
 import { useAuthStore, useWishlistStore } from '../lib/store';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const STATUS_STAGES = ['Processing', 'Shipped', 'Delivery', 'Delivered'];
 
@@ -54,9 +54,135 @@ export default function Profile() {
   const [orders, setOrders] = useState([]);
   const [hydrated, setHydrated] = useState(false);
 
+  // Customer support chat state
+  const [supportMessages, setSupportMessages] = useState([]);
+  const [supportInput, setSupportInput] = useState('');
+  const [supportUploading, setSupportUploading] = useState(false);
+  const [supportSending, setSupportSending] = useState(false);
+  const supportFileInputRef = useRef(null);
+  const supportEndRef = useRef(null);
+
+  // Address book state
+  const [addresses, setAddresses] = useState([]);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [addressForm, setAddressForm] = useState({ label: '', fullName: '', address: '', city: '', state: '', zip: '', country: '' });
+  const [savingAddress, setSavingAddress] = useState(false);
+
   useEffect(() => { setHydrated(true); }, []);
   useEffect(() => { if (hydrated && !user) router.push('/login'); }, [user, hydrated]);
   useEffect(() => { fetch('/api/orders').then(r => r.json()).then(setOrders).catch(() => {}); }, []);
+
+  const loadSupportMessages = () => {
+    if (!user) return;
+    fetch(`/api/support?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(convo => setSupportMessages(convo.messages || []))
+      .catch(() => {});
+  };
+
+  const loadAddresses = () => {
+    if (!user) return;
+    fetch(`/api/addresses?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(setAddresses)
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    loadSupportMessages();
+    loadAddresses();
+    // Mark conversation as read by the customer, and poll for new admin replies
+    fetch('/api/support', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: user.email }) }).catch(() => {});
+    const interval = setInterval(loadSupportMessages, 8000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  useEffect(() => {
+    if (tab === 'support') supportEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [supportMessages, tab]);
+
+  const handleSendSupportMessage = async () => {
+    if (!supportInput.trim() || !user) return;
+    setSupportSending(true);
+    try {
+      const res = await fetch('/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, text: supportInput.trim() }),
+      });
+      const convo = await res.json();
+      if (convo.messages) setSupportMessages(convo.messages);
+      setSupportInput('');
+    } catch (e) {}
+    setSupportSending(false);
+  };
+
+  const handleSupportImageSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setSupportUploading(true);
+    try {
+      const extMatch = file.name.match(/\.[a-zA-Z0-9]+$/);
+      const ext = extMatch ? extMatch[0] : '.jpg';
+      const safeFilename = `support-${Date.now()}${ext}`;
+
+      const uploadRes = await fetch('/api/support-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-filename': safeFilename },
+        body: file,
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadData.url) {
+        const res = await fetch('/api/support', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, imageUrl: uploadData.url }),
+        });
+        const convo = await res.json();
+        if (convo.messages) setSupportMessages(convo.messages);
+      }
+    } catch (e) {}
+    setSupportUploading(false);
+    if (supportFileInputRef.current) supportFileInputRef.current.value = '';
+  };
+
+  const handleSaveAddress = async () => {
+    if (!addressForm.fullName || !addressForm.address || !addressForm.city || !addressForm.country) return;
+    setSavingAddress(true);
+    try {
+      const payload = editingAddress ? { ...addressForm, id: editingAddress.id } : addressForm;
+      const res = await fetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, address: payload }),
+      });
+      const updated = await res.json();
+      setAddresses(updated);
+      setShowAddressForm(false);
+      setEditingAddress(null);
+      setAddressForm({ label: '', fullName: '', address: '', city: '', state: '', zip: '', country: '' });
+    } catch (e) {}
+    setSavingAddress(false);
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    if (!confirm('Remove this saved address?')) return;
+    const res = await fetch('/api/addresses', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, addressId }),
+    });
+    const updated = await res.json();
+    setAddresses(updated);
+  };
+
+  const startEditAddress = (addr) => {
+    setEditingAddress(addr);
+    setAddressForm({ label: addr.label || '', fullName: addr.fullName || '', address: addr.address || '', city: addr.city || '', state: addr.state || '', zip: addr.zip || '', country: addr.country || '' });
+    setShowAddressForm(true);
+  };
 
   if (!hydrated || !user) return (
     <>
@@ -73,6 +199,7 @@ export default function Profile() {
   const tabs = [
     { id: 'orders', label: 'Orders', count: myOrders.length },
     { id: 'wishlist', label: 'Wishlist', count: wishlist.length },
+    { id: 'addresses', label: 'Addresses' },
     { id: 'support', label: 'Support' },
   ];
 
@@ -180,27 +307,135 @@ export default function Profile() {
             </div>
           )}
 
+          {/* ADDRESSES */}
+          {tab === 'addresses' && (
+            <div className="max-w-2xl animate-fade-in">
+              {!showAddressForm && (
+                <div className="flex justify-end mb-5">
+                  <button onClick={() => { setEditingAddress(null); setAddressForm({ label: '', fullName: '', address: '', city: '', state: '', zip: '', country: '' }); setShowAddressForm(true); }}
+                    className="btn-glow bg-zelux-cyan text-zelux-navy px-6 py-2.5 rounded-full text-xs tracking-widest uppercase font-semibold hover:shadow-glow transition-all">
+                    + Add Address
+                  </button>
+                </div>
+              )}
+
+              {showAddressForm && (
+                <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-6 mb-6 animate-scale-in">
+                  <h3 className="font-display text-xl text-zelux-white mb-4">{editingAddress ? 'Edit Address' : 'New Address'}</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input value={addressForm.label} onChange={e => setAddressForm({ ...addressForm, label: e.target.value })} placeholder="Label (e.g. Home, Office)"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan sm:col-span-2" />
+                    <input value={addressForm.fullName} onChange={e => setAddressForm({ ...addressForm, fullName: e.target.value })} placeholder="Full Name *"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan sm:col-span-2" />
+                    <input value={addressForm.address} onChange={e => setAddressForm({ ...addressForm, address: e.target.value })} placeholder="Street Address *"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan sm:col-span-2" />
+                    <input value={addressForm.city} onChange={e => setAddressForm({ ...addressForm, city: e.target.value })} placeholder="City *"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                    <input value={addressForm.state} onChange={e => setAddressForm({ ...addressForm, state: e.target.value })} placeholder="State"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                    <input value={addressForm.zip} onChange={e => setAddressForm({ ...addressForm, zip: e.target.value })} placeholder="ZIP Code"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                    <input value={addressForm.country} onChange={e => setAddressForm({ ...addressForm, country: e.target.value })} placeholder="Country *"
+                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                  </div>
+                  <div className="flex justify-end gap-3 mt-5">
+                    <button onClick={() => { setShowAddressForm(false); setEditingAddress(null); }} className="text-xs text-zelux-gray hover:text-zelux-white transition-colors px-4">Cancel</button>
+                    <button onClick={handleSaveAddress} disabled={savingAddress}
+                      className="btn-glow bg-zelux-cyan text-zelux-navy px-8 py-2.5 rounded-full text-xs tracking-widest uppercase font-semibold hover:shadow-glow transition-all disabled:opacity-50">
+                      {savingAddress ? 'Saving...' : 'Save Address'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {addresses.length === 0 && !showAddressForm ? (
+                <EmptyState
+                  icon="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  title="No saved addresses"
+                  subtitle="Add an address to make checkout faster next time."
+                  ctaLabel="Start Shopping"
+                  ctaHref="/collections/all"
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {addresses.map(addr => (
+                    <div key={addr.id} className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-5 hover:border-zelux-cyan/30 transition-colors duration-300">
+                      {addr.label && <span className="text-[10px] bg-zelux-cyan/10 text-zelux-cyan border border-zelux-cyan/30 px-2.5 py-1 rounded-full tracking-wide uppercase">{addr.label}</span>}
+                      <p className="text-sm font-medium text-zelux-white mt-2">{addr.fullName}</p>
+                      <p className="text-xs text-zelux-gray mt-1 leading-relaxed">{addr.address}, {addr.city}{addr.state ? `, ${addr.state}` : ''} {addr.zip}</p>
+                      <p className="text-xs text-zelux-gray">{addr.country}</p>
+                      <div className="flex gap-3 mt-4">
+                        <button onClick={() => startEditAddress(addr)} className="text-xs text-zelux-cyan hover:text-zelux-cyan-light underline">Edit</button>
+                        <button onClick={() => handleDeleteAddress(addr.id)} className="text-xs text-zelux-gray hover:text-red-400 underline">Remove</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* SUPPORT */}
           {tab === 'support' && (
-            <div className="max-w-lg animate-fade-in">
-              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-8 relative overflow-hidden">
+            <div className="max-w-2xl animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-8 relative overflow-hidden h-fit">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-zelux-cyan/5 rounded-full blur-2xl"></div>
                 <div className="flex items-center gap-3 mb-6 relative">
                   <div className="w-11 h-11 bg-gradient-to-br from-zelux-cyan to-zelux-cyan-dark rounded-full flex items-center justify-center shadow-glow-sm">
                     <svg className="w-5 h-5 text-zelux-navy" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-zelux-white">Customer Support</p>
-                    <p className="text-xs text-zelux-gray">Instagram Direct Message</p>
+                    <p className="font-medium text-sm text-zelux-white">Instagram Support</p>
+                    <p className="text-xs text-zelux-gray">Direct Message</p>
                   </div>
                 </div>
                 <p className="text-sm text-zelux-gray leading-relaxed mb-6 relative">
-                  For any inquiries, order updates, or assistance, our customer support is handled exclusively via Instagram. Please reach out to us directly at <strong className="text-zelux-cyan">@zelux.us</strong>.
+                  For quick replies and updates, message us directly on Instagram at <strong className="text-zelux-cyan">@zelux.us</strong>.
                 </p>
                 <a href="https://instagram.com/zelux.us" target="_blank" rel="noreferrer"
                   className="btn-glow relative inline-flex items-center gap-2 bg-zelux-cyan text-zelux-navy px-8 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">
                   Message @zelux.us &rarr;
                 </a>
+              </div>
+
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl flex flex-col h-[480px]">
+                <div className="px-6 py-4 border-b border-zelux-gray-mid/30">
+                  <p className="font-medium text-sm text-zelux-white">ZELUX Support</p>
+                  <p className="text-xs text-zelux-gray">We typically reply within a day</p>
+                </div>
+                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+                  {supportMessages.length === 0 && (
+                    <p className="text-xs text-zelux-gray text-center mt-10">Send us a message and we'll get back to you here.</p>
+                  )}
+                  {supportMessages.map(m => (
+                    <div key={m.id} className={`flex ${m.sender === 'customer' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.sender === 'customer' ? 'bg-zelux-cyan text-zelux-navy' : 'bg-zelux-navy-light text-zelux-white border border-zelux-gray-mid/30'}`}>
+                        {m.imageUrl && <img src={m.imageUrl} alt="attachment" className="rounded-lg mb-1.5 max-h-48 object-cover" />}
+                        {m.text && <p className="text-sm leading-relaxed">{m.text}</p>}
+                        <p className={`text-[10px] mt-1 ${m.sender === 'customer' ? 'text-zelux-navy/60' : 'text-zelux-gray'}`}>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={supportEndRef}></div>
+                </div>
+                <div className="p-4 border-t border-zelux-gray-mid/30 flex items-center gap-2">
+                  <input type="file" ref={supportFileInputRef} accept="image/*" className="hidden" onChange={handleSupportImageSelected} />
+                  <button onClick={() => supportFileInputRef.current?.click()} disabled={supportUploading}
+                    className="w-9 h-9 flex-shrink-0 rounded-full border border-zelux-gray-mid/40 flex items-center justify-center text-zelux-gray hover:text-zelux-cyan hover:border-zelux-cyan/50 transition-colors disabled:opacity-50">
+                    {supportUploading ? (
+                      <div className="w-3.5 h-3.5 border-2 border-zelux-cyan/30 border-t-zelux-cyan rounded-full animate-spin"></div>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                    )}
+                  </button>
+                  <input value={supportInput} onChange={e => setSupportInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendSupportMessage()}
+                    placeholder="Type a message..."
+                    className="flex-1 bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-full px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                  <button onClick={handleSendSupportMessage} disabled={supportSending || !supportInput.trim()}
+                    className="btn-glow w-9 h-9 flex-shrink-0 rounded-full bg-zelux-cyan text-zelux-navy flex items-center justify-center hover:shadow-glow transition-all disabled:opacity-50">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                  </button>
+                </div>
               </div>
             </div>
           )}
