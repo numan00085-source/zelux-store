@@ -21,7 +21,7 @@ export default function Navbar() {
     { key: 'apparel', label: navLabels.navLinkApparel },
     { key: 'footwear', label: navLabels.navLinkFootwear },
     { key: 'electronics', label: navLabels.navLinkElectronics },
-    { key: 'all', label: 'Shop All' },
+    { key: 'all', label: 'Home Page' },
   ];
 
   return (

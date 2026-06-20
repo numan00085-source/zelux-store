@@ -40,8 +40,9 @@ export default function Home() {
   const [heroImgIndex, setHeroImgIndex] = useState(0);
   const [settings, setSettings] = useState({
     heroSubtitle: 'Est. 2024 - Luxury Redefined',
-    announcementText: 'Free Shipping on Orders Over $150 - Worldwide Delivery - Secure Checkout - New Arrivals Weekly',
+    announcementText: 'Free Shipping on Orders Over {shippingThreshold} - Worldwide Delivery - Secure Checkout - New Arrivals Weekly',
     heroImages: [],
+    freeShippingThreshold: 150,
   });
 
   useEffect(() => {
@@ -101,11 +102,8 @@ export default function Home() {
             <p className="text-xs tracking-[0.3em] uppercase text-zelux-cyan-dark mb-10 font-light animate-fade-in-up" style={{ animationDelay: '0.3s' }}>{settings.heroSubtitle}</p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
-              <Link href="/collections/all" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-4 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow-lg hover:scale-105 transition-all duration-300">
+              <Link href="/collections/all" className="btn-glow bg-zelux-cyan text-zelux-navy px-12 py-4 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow-lg hover:scale-105 transition-all duration-300">
                 Shop Now
-              </Link>
-              <Link href="/collections/electronics" className="btn-glow border border-zelux-cyan/50 text-zelux-white px-10 py-4 text-xs tracking-widest uppercase rounded-full hover:border-zelux-cyan hover:shadow-glow hover:scale-105 transition-all duration-300">
-                Electronics
               </Link>
             </div>
           </div>
@@ -119,7 +117,7 @@ export default function Home() {
           <div className="inline-flex animate-marquee">
             {[...Array(2)].map((_, i) => (
               <span key={i} className="text-xs tracking-widest uppercase text-zelux-gray px-8">
-                {settings.announcementText} &nbsp;&middot;&nbsp;
+                {(settings.announcementText || '').replace('{shippingThreshold}', `$${settings.freeShippingThreshold ?? 150}`)} &nbsp;&middot;&nbsp;
               </span>
             ))}
           </div>
