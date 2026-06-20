@@ -58,6 +58,7 @@ export default async function handler(req, res) {
         id: `ORD-${Date.now()}`,
         productName: productNames || 'ZELUX Order',
         variant: '',
+        itemsSummary: session.metadata?.itemsSummary || '',
         total,
         customerName: session.metadata?.customerName || session.customer_details?.name || 'Unknown',
         customerEmail: session.metadata?.customerEmail || session.customer_details?.email || '',

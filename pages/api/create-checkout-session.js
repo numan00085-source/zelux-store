@@ -20,14 +20,34 @@ export default async function handler(req, res) {
   const { cart, form, total } = req.body;
 
   try {
-    const line_items = cart.map(item => ({
-      price_data: {
-        currency: 'usd',
-        product_data: { name: `${item.name} (${item.selectedVariant})`, images: [item.images[0]] },
-        unit_amount: Math.round(item.price * 100),
-      },
-      quantity: item.quantity,
-    }));
+    const line_items = cart.map(item => {
+      const parts = [item.selectedVariant];
+      if (item.customization && (item.customization.name || item.customization.number)) {
+        const custParts = [item.customization.name, item.customization.number].filter(Boolean).join(' #');
+        if (custParts) parts.push(`Custom: ${custParts}`);
+      }
+      const label = parts.filter(Boolean).join(', ');
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: { name: `${item.name}${label ? ` (${label})` : ''}`, images: [item.images[0]] },
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    // Build a compact, human-readable summary of every item's options for the order record.
+    // Stripe metadata values must be <= 500 characters each, so we keep this concise.
+    const itemsSummary = cart.map(item => {
+      const bits = [`${item.name} x${item.quantity}`];
+      if (item.selectedVariant) bits.push(item.selectedVariant);
+      if (item.customization && (item.customization.name || item.customization.number)) {
+        const custParts = [item.customization.name, item.customization.number].filter(Boolean).join(' #');
+        if (custParts) bits.push(`Custom: ${custParts}`);
+      }
+      return bits.join(' | ');
+    }).join(' ;; ').slice(0, 490);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -49,6 +69,7 @@ export default async function handler(req, res) {
         customerName: form.name,
         customerEmail: form.email,
         shippingAddress: `${form.address}, ${form.city}, ${form.state} ${form.zip}`,
+        itemsSummary,
       },
     });
 
