@@ -1,8 +1,20 @@
 import Stripe from 'stripe';
-import { getEffectiveStripeKeys } from '../../lib/redis';
+import { getEffectiveStripeKeys, checkRateLimit } from '../../lib/redis';
+
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) return forwarded.split(',')[0].trim();
+  if (req.headers['x-real-ip']) return req.headers['x-real-ip'];
+  return req.socket?.remoteAddress || 'unknown';
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+
+  const ip = getClientIp(req);
+  const rateCheck = await checkRateLimit(ip, 'checkout', 15);
+  if (rateCheck.blocked) return res.status(403).json({ error: 'Access denied.' });
+  if (!rateCheck.allowed) return res.status(429).json({ error: 'Too many checkout attempts. Please wait a moment and try again.' });
 
   let secretKey;
   try {
