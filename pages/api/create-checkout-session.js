@@ -1,8 +1,22 @@
 import Stripe from 'stripe';
+import { getEffectiveStripeKeys } from '../../lib/redis';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+  let secretKey;
+  try {
+    const keys = await getEffectiveStripeKeys();
+    secretKey = keys.secretKey;
+  } catch (e) {
+    secretKey = process.env.STRIPE_SECRET_KEY;
+  }
+
+  if (!secretKey) {
+    return res.status(500).json({ error: 'Payment gateway is not configured.' });
+  }
+
+  const stripe = new Stripe(secretKey);
   const { cart, form, total } = req.body;
 
   try {

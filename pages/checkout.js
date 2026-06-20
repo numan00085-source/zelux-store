@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useCartStore } from '../lib/store';
@@ -9,6 +9,11 @@ export default function Checkout() {
   const [form, setForm] = useState({ name: '', email: '', address: '', city: '', state: '', zip: '', country: 'US' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shippingConfig, setShippingConfig] = useState({ freeShippingThreshold: 150, shippingFee: 9.99 });
+
+  useEffect(() => {
+    fetch('/api/settings').then(r => r.json()).then(d => setShippingConfig({ freeShippingThreshold: d.freeShippingThreshold ?? 150, shippingFee: d.shippingFee ?? 9.99 })).catch(() => {});
+  }, []);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -30,7 +35,7 @@ export default function Checkout() {
     setLoading(false);
   };
 
-  const shipping = total >= 150 ? 0 : 9.99;
+  const shipping = total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shippingFee;
   const grandTotal = total + shipping;
 
   return (

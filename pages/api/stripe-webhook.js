@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { addOrder } from '../../lib/redis';
+import { addOrder, getEffectiveStripeKeys } from '../../lib/redis';
 
 export const config = {
   api: {
@@ -19,7 +19,15 @@ function buffer(readable) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  let secretKey = process.env.STRIPE_SECRET_KEY;
+  try {
+    const keys = await getEffectiveStripeKeys();
+    secretKey = keys.secretKey || secretKey;
+  } catch (e) {
+    // fall back to env var already set above
+  }
+
+  const stripe = new Stripe(secretKey);
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
