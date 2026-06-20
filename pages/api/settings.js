@@ -20,6 +20,11 @@ const DEFAULTS = {
   metaDescription: 'Premium fashion and electronics, curated for those who refuse to settle.',
   maintenanceMode: false,
   maintenanceMessage: 'We are currently updating our store. Please check back shortly.',
+  heroImages: [
+    'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=90',
+    'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90',
+    'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1200&q=90',
+  ],
 };
 
 export default async function handler(req, res) {

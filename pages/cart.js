@@ -40,6 +40,11 @@ export default function Cart() {
                   <div className="flex-1">
                     <h3 className="font-display text-lg font-light text-zelux-white">{item.name}</h3>
                     <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
+                    {item.customization && (item.customization.name || item.customization.number) && (
+                      <p className="text-[11px] text-zelux-cyan mt-0.5">
+                        Custom: {item.customization.name} {item.customization.number}
+                      </p>
+                    )}
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex items-center border border-zelux-gray-mid/40 rounded-lg">
                         <button onClick={() => item.quantity > 1 ? updateQty(item.key, item.quantity - 1) : removeFromCart(item.key)} className="w-8 h-8 flex items-center justify-center text-sm text-zelux-gray hover:text-zelux-cyan transition-colors">&minus;</button>

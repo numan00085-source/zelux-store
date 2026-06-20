@@ -11,6 +11,9 @@ export default function ProductPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [customName, setCustomName] = useState('');
+  const [customNumber, setCustomNumber] = useState('');
   const [selectedImg, setSelectedImg] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -50,7 +53,13 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (variantOptions && variantOptions.length > 0 && !selectedVariant) { alert('Please select a size or variant.'); return; }
-    addToCart(product, selectedVariant || 'Standard', qty);
+    if (product.colors && product.colors.length > 0 && !selectedColor) { alert('Please select a color.'); return; }
+    const cartItem = { ...product };
+    if (product.customizable && (customName || customNumber)) {
+      cartItem.customization = { name: customName, number: customNumber };
+    }
+    const variantLabel = [selectedVariant, selectedColor].filter(Boolean).join(' / ') || 'Standard';
+    addToCart(cartItem, variantLabel, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -93,6 +102,36 @@ export default function ProductPage() {
                       {v}
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+            {product.colors && product.colors.length > 0 && (
+              <div className="mb-6">
+                <p className="text-xs tracking-widest uppercase text-zelux-gray mb-3">Select Color</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.colors.map(c => (
+                    <button key={c} onClick={() => setSelectedColor(c)}
+                      className={`px-4 py-2 text-xs rounded-lg border tracking-wider transition-all duration-300 ${selectedColor === c ? 'bg-zelux-cyan text-zelux-navy border-zelux-cyan shadow-glow-sm' : 'bg-zelux-navy-card text-zelux-white border-zelux-gray-mid/40 hover:border-zelux-cyan/50'}`}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {product.customizable && (
+              <div className="mb-6 bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-xl p-5">
+                <p className="text-xs tracking-widest uppercase text-zelux-cyan mb-3">Customize (Optional)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] text-zelux-gray block mb-1.5">Name</label>
+                    <input value={customName} onChange={e => setCustomName(e.target.value.slice(0, 20))}
+                      className="w-full bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-3 py-2 text-sm text-zelux-white outline-none focus:border-zelux-cyan" placeholder="e.g. RONALDO" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-zelux-gray block mb-1.5">Number</label>
+                    <input value={customNumber} onChange={e => setCustomNumber(e.target.value.replace(/[^0-9]/g, '').slice(0, 2))}
+                      className="w-full bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-3 py-2 text-sm text-zelux-white outline-none focus:border-zelux-cyan" placeholder="e.g. 7" />
+                  </div>
                 </div>
               </div>
             )}
