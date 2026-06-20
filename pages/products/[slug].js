@@ -59,8 +59,14 @@ export default function ProductPage() {
   const variantOptions = isApparel ? product.sizes : product.variants;
 
   const handleAddToCart = () => {
-    if (variantOptions && variantOptions.length > 0 && !selectedVariant) { showToast(isApparel ? 'Please select a size' : 'Please select a variant'); return; }
-    if (product.colors && product.colors.length > 0 && !selectedColor) { showToast('Please select a color'); return; }
+    const missing = [];
+    if (variantOptions && variantOptions.length > 0 && !selectedVariant) missing.push(isApparel ? 'size' : 'variant');
+    if (product.colors && product.colors.length > 0 && !selectedColor) missing.push('color');
+    if (missing.length > 0) {
+      const label = missing.length === 1 ? missing[0] : missing.join(' and ');
+      showToast(`Please select a ${label} before adding to cart`);
+      return;
+    }
     const cartItem = { ...product };
     if (product.customizable && (customName || customNumber)) {
       cartItem.customization = { name: customName, number: customNumber };
@@ -183,14 +189,14 @@ export default function ProductPage() {
       </main>
 
       {toastMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-fade-in-up">
-          <div className="flex items-center gap-3 bg-zelux-navy-card border border-zelux-cyan/40 rounded-full pl-4 pr-5 py-3 shadow-glow-sm backdrop-blur-md">
+        <div className="fixed bottom-6 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[200] animate-fade-in-up flex justify-center">
+          <div className="flex items-center gap-3 bg-zelux-navy-card border border-zelux-cyan/40 rounded-full pl-4 pr-5 py-3 shadow-glow-sm backdrop-blur-md max-w-full">
             <div className="w-6 h-6 rounded-full bg-zelux-cyan/15 flex items-center justify-center flex-shrink-0">
               <svg className="w-3.5 h-3.5 text-zelux-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
             </div>
-            <span className="text-sm text-zelux-white tracking-wide whitespace-nowrap">{toastMessage}</span>
+            <span className="text-sm text-zelux-white tracking-wide">{toastMessage}</span>
           </div>
         </div>
       )}
