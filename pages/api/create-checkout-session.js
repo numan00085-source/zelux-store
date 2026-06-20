@@ -35,7 +35,16 @@ export default async function handler(req, res) {
       mode: 'payment',
       success_url: `${req.headers.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/cart`,
-      shipping_address_collection: { allowed_countries: ['US', 'CA', 'GB', 'AU'] },
+      shipping_address_collection: {
+        allowed_countries: [
+          'BD', 'IN', 'PK', 'LK', 'NP', 'MV', 'JP', 'KR', 'SG', 'MY', 'TH', 'ID', 'PH', 'VN',
+          'AE', 'SA', 'QA', 'OM', 'KW', 'BH',
+          'GB', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'CH', 'SE', 'NO', 'DK', 'FI', 'PL', 'PT', 'GR', 'IE', 'AT',
+          'US', 'CA', 'MX', 'BR', 'AR', 'CL', 'CO', 'PE',
+          'AU', 'NZ',
+          'ZA', 'EG', 'MA', 'NG', 'KE',
+        ],
+      },
       metadata: {
         customerName: form.name,
         customerEmail: form.email,

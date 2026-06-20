@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import CountrySelect from '../components/CountrySelect';
 import { useCartStore } from '../lib/store';
 
 export default function Checkout() {
   const cart = useCartStore(s => s.cart);
   const total = useCartStore(s => s.total());
-  const [form, setForm] = useState({ name: '', email: '', address: '', city: '', state: '', zip: '', country: 'US' });
+  const [form, setForm] = useState({ name: '', email: '', address: '', city: '', state: '', zip: '', country: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingConfig, setShippingConfig] = useState({ freeShippingThreshold: 150, shippingFee: 9.99 });
@@ -19,6 +20,7 @@ export default function Checkout() {
 
   const handleSubmit = async () => {
     if (!form.name || !form.email || !form.address) { setError('Please fill in all required fields.'); return; }
+    if (!form.country) { setError('Please select a shipping country.'); return; }
     setLoading(true); setError('');
     try {
       const res = await fetch('/api/create-checkout-session', {
@@ -61,6 +63,10 @@ export default function Checkout() {
                     className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300" />
                 </div>
               ))}
+              <div>
+                <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">Country *</label>
+                <CountrySelect value={form.country} onChange={code => setForm({ ...form, country: code })} />
+              </div>
             </div>
             {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
           </div>
