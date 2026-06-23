@@ -1,19 +1,30 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CountrySelect from '../components/CountrySelect';
 import { useCartStore, useAuthStore } from '../lib/store';
 
 export default function Checkout() {
+  const router = useRouter();
   const cart = useCartStore(s => s.cart);
   const total = useCartStore(s => s.total());
   const user = useAuthStore(s => s.user);
+  const [hydrated, setHydrated] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', address: '', city: '', state: '', zip: '', country: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingConfig, setShippingConfig] = useState({ freeShippingThreshold: 150, shippingFee: 9.99 });
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('');
+
+  useEffect(() => { setHydrated(true); }, []);
+  // Checkout requires an account, same as the support chat and address book
+  // tabs in profile.js - redirect to login (preserving the intended
+  // destination via ?redirect= so login.js can send them back here after).
+  useEffect(() => {
+    if (hydrated && !user) router.push('/login?redirect=/checkout');
+  }, [user, hydrated]);
 
   useEffect(() => {
     fetch('/api/settings').then(r => r.json()).then(d => setShippingConfig({ freeShippingThreshold: d.freeShippingThreshold ?? 150, shippingFee: d.shippingFee ?? 9.99 })).catch(() => {});
@@ -66,6 +77,16 @@ export default function Checkout() {
 
   const shipping = total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shippingFee;
   const grandTotal = total + shipping;
+
+  if (!hydrated || !user) return (
+    <>
+      <Navbar />
+      <main className="pt-16 min-h-screen bg-zelux-navy flex items-center justify-center">
+        <p className="text-zelux-gray text-sm">Redirecting to login...</p>
+      </main>
+      <Footer />
+    </>
+  );
 
   return (
     <>

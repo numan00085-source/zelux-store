@@ -12,7 +12,12 @@ export default function Login() {
   const user = useAuthStore(s => s.user);
   const router = useRouter();
 
-  useEffect(() => { if (user) router.push('/profile'); }, [user]);
+  useEffect(() => {
+    if (user) {
+      const dest = typeof router.query.redirect === 'string' ? router.query.redirect : '/profile';
+      router.push(dest);
+    }
+  }, [user]);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -28,7 +33,8 @@ export default function Login() {
 
     setTimeout(() => {
       setUser({ name: finalName, email: form.email, id: Date.now() });
-      router.push('/profile');
+      const dest = typeof router.query.redirect === 'string' ? router.query.redirect : '/profile';
+      router.push(dest);
     }, 400);
   };
 

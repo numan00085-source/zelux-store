@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Link from 'next/link';
+import CountrySelect, { SHIPPING_COUNTRIES } from '../components/CountrySelect';
 import { useAuthStore, useWishlistStore } from '../lib/store';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useRef } from 'react';
@@ -178,6 +179,15 @@ export default function Profile() {
     setAddresses(updated);
   };
 
+  // Resolves a saved address's country to a readable name. New addresses
+  // store the ISO code (via CountrySelect), but older addresses saved before
+  // this dropdown existed may have free-text values - falling back to the
+  // raw value keeps those still displaying something sensible.
+  const countryDisplayName = (value) => {
+    const match = SHIPPING_COUNTRIES.find(c => c.code === value);
+    return match ? match.name : value;
+  };
+
   const startEditAddress = (addr) => {
     setEditingAddress(addr);
     setAddressForm({ label: addr.label || '', fullName: addr.fullName || '', address: addr.address || '', city: addr.city || '', state: addr.state || '', zip: addr.zip || '', country: addr.country || '' });
@@ -335,8 +345,9 @@ export default function Profile() {
                       className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
                     <input value={addressForm.zip} onChange={e => setAddressForm({ ...addressForm, zip: e.target.value })} placeholder="ZIP Code"
                       className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
-                    <input value={addressForm.country} onChange={e => setAddressForm({ ...addressForm, country: e.target.value })} placeholder="Country *"
-                      className="bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-lg px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                    <div className="sm:col-span-2">
+                      <CountrySelect value={addressForm.country} onChange={code => setAddressForm({ ...addressForm, country: code })} />
+                    </div>
                   </div>
                   <div className="flex justify-end gap-3 mt-5">
                     <button onClick={() => { setShowAddressForm(false); setEditingAddress(null); }} className="text-xs text-zelux-gray hover:text-zelux-white transition-colors px-4">Cancel</button>
@@ -363,7 +374,7 @@ export default function Profile() {
                       {addr.label && <span className="text-[10px] bg-zelux-cyan/10 text-zelux-cyan border border-zelux-cyan/30 px-2.5 py-1 rounded-full tracking-wide uppercase">{addr.label}</span>}
                       <p className="text-sm font-medium text-zelux-white mt-2">{addr.fullName}</p>
                       <p className="text-xs text-zelux-gray mt-1 leading-relaxed">{addr.address}, {addr.city}{addr.state ? `, ${addr.state}` : ''} {addr.zip}</p>
-                      <p className="text-xs text-zelux-gray">{addr.country}</p>
+                      <p className="text-xs text-zelux-gray">{countryDisplayName(addr.country)}</p>
                       <div className="flex gap-3 mt-4">
                         <button onClick={() => startEditAddress(addr)} className="text-xs text-zelux-cyan hover:text-zelux-cyan-light underline">Edit</button>
                         <button onClick={() => handleDeleteAddress(addr.id)} className="text-xs text-zelux-gray hover:text-red-400 underline">Remove</button>

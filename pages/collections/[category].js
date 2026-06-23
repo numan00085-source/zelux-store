@@ -50,7 +50,6 @@ export default function CollectionPage() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-zelux-cyan/5 rounded-full blur-3xl"></div>
           <p className="text-xs tracking-widest uppercase text-zelux-cyan mb-3 relative">{category === 'all' ? 'Browse Everything' : 'Collection'}</p>
           <h1 className="font-display text-5xl font-light text-zelux-white relative glow-text">{categoryLabels[category] || category}</h1>
-          <p className="text-sm text-zelux-gray mt-3 relative">{loading ? '...' : `${items.length} pieces`}</p>
 
           <div className="relative max-w-md mx-auto mt-8 px-4">
             <div className="relative">

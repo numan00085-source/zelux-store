@@ -157,6 +157,16 @@ export default function ProductPage() {
               <button onClick={() => toggle(product)} className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-all duration-300 ${isWishlisted ? 'bg-zelux-cyan border-zelux-cyan text-zelux-navy' : 'border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan'}`}>
                 <svg className="w-4 h-4" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
               </button>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  showToast('Product link copied');
+                }}
+                title="Copy product link"
+                className="w-10 h-10 rounded-lg border border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan flex items-center justify-center transition-all duration-300"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+              </button>
             </div>
             {product.inStock === false ? (
               <button disabled className="w-full py-4 text-xs tracking-widest uppercase font-medium bg-zelux-gray-light text-zelux-gray rounded-full cursor-not-allowed">Out of Stock</button>
