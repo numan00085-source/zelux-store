@@ -1,11 +1,17 @@
 {
   "name": "ZELUX",
   "short_name": "ZELUX",
+  "description": "ZELUX - premium streetwear, footwear, and electronics.",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
   "icons": [
     { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "theme_color": "#060B16",
   "background_color": "#060B16",
-  "display": "standalone"
+  "display": "standalone",
+  "orientation": "portrait-primary"
 }

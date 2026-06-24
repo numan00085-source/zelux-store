@@ -23,6 +23,18 @@ export default function App({ Component, pageProps }) {
     }).catch(() => setMaintenance(false));
   }, []);
 
+  // Registers the service worker so the site meets PWA installability
+  // criteria (manifest + service worker + HTTPS). Guarded with a feature
+  // check since older/unsupported browsers simply won't have
+  // navigator.serviceWorker - this must never throw or block rendering.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.error('Service worker registration failed', err);
+      });
+    }
+  }, []);
+
   if (maintenance === null) return null; // brief check before paint
   if (maintenance) return <MaintenanceScreen message={maintenance} />;
 
