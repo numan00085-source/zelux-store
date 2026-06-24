@@ -53,6 +53,7 @@ export default function Profile() {
   const router = useRouter();
   const [tab, setTab] = useState('orders');
   const [orders, setOrders] = useState([]);
+  const [expandedOrderTracking, setExpandedOrderTracking] = useState(null);
   const [hydrated, setHydrated] = useState(false);
 
   // Customer support chat state
@@ -72,7 +73,15 @@ export default function Profile() {
 
   useEffect(() => { setHydrated(true); }, []);
   useEffect(() => { if (hydrated && !user) router.push('/login'); }, [user, hydrated]);
-  useEffect(() => { fetch('/api/orders').then(r => r.json()).then(setOrders).catch(() => {}); }, []);
+  // Fetches only this user's own orders - the API requires an email and
+  // filters server-side, rather than the previous approach of fetching every
+  // customer's orders and filtering client-side (a real privacy gap, since
+  // every signed-in user's browser would have received every other
+  // customer's name, address, and email just to filter them out locally).
+  useEffect(() => {
+    if (!user?.email) return;
+    fetch(`/api/orders?email=${encodeURIComponent(user.email)}`).then(r => r.json()).then(setOrders).catch(() => {});
+  }, [user]);
 
   const loadSupportMessages = () => {
     if (!user) return;
@@ -203,7 +212,9 @@ export default function Profile() {
     </>
   );
 
-  const myOrders = orders.filter(o => o.customerEmail === user.email);
+  // No client-side filter needed - /api/orders already scopes results to
+  // this user's email server-side.
+  const myOrders = orders;
   const initials = (user.name || user.email || 'U').slice(0, 1).toUpperCase();
 
   const tabs = [
@@ -265,21 +276,55 @@ export default function Profile() {
                 />
               ) : (
                 <div className="space-y-5">
-                  {myOrders.map(order => (
-                    <div key={order.id} className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-6 hover:border-zelux-cyan/30 transition-colors duration-300">
-                      <div className="flex justify-between items-start mb-2 flex-wrap gap-2">
-                        <div>
-                          <p className="text-[10px] text-zelux-gray tracking-widest uppercase mb-1">Order {order.id}</p>
-                          <p className="font-medium text-sm text-zelux-white">{order.productName}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-zelux-cyan">${order.total}</p>
-                          <span className="text-[10px] bg-zelux-cyan/10 text-zelux-cyan border border-zelux-cyan/30 px-2.5 py-1 rounded-full mt-1 inline-block tracking-wide">{order.status}</span>
-                        </div>
+                  {myOrders.map(order => {
+                    const isExpanded = expandedOrderTracking === order.trackingNumber;
+                    return (
+                      <div key={order.trackingNumber || order.id} className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-6 hover:border-zelux-cyan/30 transition-colors duration-300">
+                        <button
+                          onClick={() => setExpandedOrderTracking(isExpanded ? null : order.trackingNumber)}
+                          className="w-full text-left"
+                        >
+                          <div className="flex justify-between items-start mb-2 flex-wrap gap-2">
+                            <div>
+                              <p className="text-[10px] text-zelux-gray tracking-widest uppercase mb-1">
+                                {order.trackingNumber ? `Tracking: ${order.trackingNumber}` : `Order ${order.id}`}
+                              </p>
+                              <p className="font-medium text-sm text-zelux-white">{order.productName}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-zelux-cyan">${order.total}</p>
+                              <span className="text-[10px] bg-zelux-cyan/10 text-zelux-cyan border border-zelux-cyan/30 px-2.5 py-1 rounded-full mt-1 inline-block tracking-wide">{order.status}</span>
+                            </div>
+                          </div>
+                          <TrackingTimeline status={order.status} />
+                        </button>
+
+                        {isExpanded && (
+                          <div className="mt-5 pt-5 border-t border-zelux-gray-mid/20 space-y-3 animate-fade-in">
+                            <p className="text-[10px] text-zelux-gray uppercase tracking-widest">Tracking Updates</p>
+                            <div className="space-y-2">
+                              {(order.statusHistory || []).slice().reverse().map((entry, i) => (
+                                <div key={i} className="flex items-start gap-3 bg-zelux-navy-light/40 border border-zelux-gray-mid/20 rounded-xl px-4 py-3">
+                                  <span className="w-2 h-2 rounded-full bg-zelux-cyan mt-1.5 flex-shrink-0"></span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-zelux-white font-medium">{entry.status}</p>
+                                    {entry.caption && <p className="text-xs text-zelux-gray mt-0.5">{entry.caption}</p>}
+                                    <p className="text-[10px] text-zelux-gray mt-1">{new Date(entry.updatedAt).toLocaleString()}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            {order.address && (
+                              <div className="text-xs text-zelux-gray pt-2">
+                                <span className="block text-[10px] uppercase tracking-widest mb-1">Shipping To</span>
+                                <span className="text-zelux-white">{order.address}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <TrackingTimeline status={order.status} />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
