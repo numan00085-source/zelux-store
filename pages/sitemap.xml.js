@@ -6,7 +6,10 @@ const SITE_URL = 'https://www.zeluxus.com';
 // Static, always-present pages. Cart/checkout/login/profile/order-success are
 // deliberately excluded - they're either account-gated, transactional, or
 // have no SEO value (nothing for Google to meaningfully index there).
-const STATIC_PATHS = ['/', '/collections/all', '/collections/apparel', '/collections/footwear', '/collections/electronics'];
+// Category pages (apparel/footwear/electronics) were removed - the home
+// page is now the single product-browsing surface, so this list no longer
+// includes /collections/* entries.
+const STATIC_PATHS = ['/'];
 
 function buildSitemapXml(urls) {
   const urlEntries = urls

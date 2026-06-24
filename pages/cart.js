@@ -29,7 +29,7 @@ export default function Cart() {
         {!hydrated ? null : cart.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
             <p className="text-zelux-gray mb-6">Your cart is empty.</p>
-            <Link href="/collections/all" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">Continue Shopping</Link>
+            <Link href="/" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">Continue Shopping</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">

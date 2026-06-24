@@ -18,7 +18,7 @@ export default function Wishlist() {
         {!hydrated ? null : wishlist.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
             <p className="text-zelux-gray mb-6">Your wishlist is empty.</p>
-            <Link href="/collections/all" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">Browse Collections</Link>
+            <Link href="/" className="btn-glow bg-zelux-cyan text-zelux-navy px-10 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">Browse Products</Link>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

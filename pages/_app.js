@@ -35,20 +35,23 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
-  // Records ONE count per visit, not per page view. A visitor browsing 5
-  // pages in one session should count as 1 visit, not 5 - otherwise the
-  // admin's "visitors" number doesn't actually represent how many people
-  // came to the site, it represents page views, which is a different (and
-  // less useful) metric. sessionStorage marks the visit as already recorded
-  // for this browser tab; it persists across client-side navigation
-  // (Link clicks, router.push) but clears when the tab/browser closes, so a
-  // genuinely new visit later still gets counted.
+  // Records ONE count per visitor per CALENDAR DAY, not per page view and
+  // not per browser-tab-session. localStorage (not sessionStorage) is used
+  // because it survives closing/reopening the tab or browser - sessionStorage
+  // would have reset on every new tab, which is exactly the bug reported:
+  // visits looked like they were still being counted per-page because
+  // closing and reopening a tab (normal browsing behavior) created a "new"
+  // session and re-triggered the count. The stored value is today's date
+  // string - if it doesn't match today, this is either a new day or a
+  // first-ever visit on this browser, and we count it once and update the
+  // stored date.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const alreadyCounted = sessionStorage.getItem('zelux-visit-counted');
-    if (!alreadyCounted) {
+    const todayString = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const lastCountedDate = localStorage.getItem('zelux-visit-last-counted-date');
+    if (lastCountedDate !== todayString) {
       fetch('/api/visitors', { method: 'POST' }).catch(() => {});
-      sessionStorage.setItem('zelux-visit-counted', '1');
+      localStorage.setItem('zelux-visit-last-counted-date', todayString);
     }
   }, []);
 

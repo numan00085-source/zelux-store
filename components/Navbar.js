@@ -5,7 +5,6 @@ import { useCartStore, useAuthStore } from '../lib/store';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [navLabels, setNavLabels] = useState({ navLinkApparel: 'Apparel', navLinkFootwear: 'Footwear', navLinkElectronics: 'Electronics' });
   const cart = useCartStore(s => s.cart);
   const user = useAuthStore(s => s.user);
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
@@ -13,16 +12,8 @@ export default function Navbar() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
-    fetch('/api/settings').then(r => r.json()).then(setNavLabels).catch(() => {});
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const navItems = [
-    { key: 'apparel', label: navLabels.navLinkApparel },
-    { key: 'footwear', label: navLabels.navLinkFootwear },
-    { key: 'electronics', label: navLabels.navLinkElectronics },
-    { key: 'all', label: 'Home Page' },
-  ];
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-zelux-navy/95 backdrop-blur-md shadow-glow-sm' : 'bg-zelux-navy/80 backdrop-blur-sm'} border-b border-zelux-gray-mid/40`}>
@@ -33,13 +24,6 @@ export default function Navbar() {
             <span className="block w-5 h-px bg-zelux-cyan mb-1.5"></span>
             <span className="block w-3 h-px bg-zelux-cyan transition-all group-hover:w-5"></span>
           </button>
-          <div className="hidden lg:flex items-center gap-8">
-            {navItems.map(item => (
-              <Link key={item.key} href={`/collections/${item.key}`} className="nav-link text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">
-                {item.label}
-              </Link>
-            ))}
-          </div>
         </div>
 
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group">
@@ -70,10 +54,9 @@ export default function Navbar() {
 
       {menuOpen && (
         <div className="lg:hidden bg-zelux-navy-light border-t border-zelux-gray-mid/40 px-4 py-6 flex flex-col gap-4 animate-fade-in">
-          {navItems.map(item => (
-            <Link key={item.key} href={`/collections/${item.key}`} className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>{item.label}</Link>
-          ))}
           <Link href={user ? "/profile" : "/login"} className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Account</Link>
+          <Link href="/wishlist" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Wishlist</Link>
+          <Link href="/cart" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Cart</Link>
         </div>
       )}
     </nav>

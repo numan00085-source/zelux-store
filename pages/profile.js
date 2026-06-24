@@ -272,7 +272,7 @@ export default function Profile() {
                   title="No orders yet"
                   subtitle="Your future purchases will appear here with live tracking."
                   ctaLabel="Start Shopping"
-                  ctaHref="/collections/all"
+                  ctaHref="/"
                 />
               ) : (
                 <div className="space-y-5">
@@ -339,7 +339,7 @@ export default function Profile() {
                   title="Your wishlist is empty"
                   subtitle="Save pieces you love and revisit them anytime."
                   ctaLabel="Browse Collections"
-                  ctaHref="/collections/all"
+                  ctaHref="/"
                 />
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -410,7 +410,7 @@ export default function Profile() {
                   title="No saved addresses"
                   subtitle="Add an address to make checkout faster next time."
                   ctaLabel="Start Shopping"
-                  ctaHref="/collections/all"
+                  ctaHref="/"
                 />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -32,10 +32,9 @@ export default function Footer() {
         <div>
           <h4 className="text-xs tracking-widest uppercase text-zelux-gray mb-4">Shop</h4>
           <ul className="space-y-3">
-            <li><Link href="/collections/apparel" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">{s.navLinkApparel}</Link></li>
-            <li><Link href="/collections/footwear" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">{s.navLinkFootwear}</Link></li>
-            <li><Link href="/collections/electronics" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">{s.navLinkElectronics}</Link></li>
-            <li><Link href="/collections/all" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">All Products</Link></li>
+            <li><Link href="/" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">All Products</Link></li>
+            <li><Link href="/wishlist" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">Wishlist</Link></li>
+            <li><Link href="/cart" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">Cart</Link></li>
           </ul>
         </div>
         <div>
