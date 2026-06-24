@@ -1,9 +1,9 @@
-import { recordPageView } from '../../lib/redis';
+import { recordVisit } from '../../lib/redis';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   try {
-    await recordPageView();
+    await recordVisit();
     res.json({ success: true });
   } catch (err) {
     console.error('record pageview error', err);

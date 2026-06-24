@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import '../styles/globals.css';
 import AdSlot from '../components/AdSlot';
 
@@ -16,7 +15,6 @@ function MaintenanceScreen({ message }) {
 
 export default function App({ Component, pageProps }) {
   const [maintenance, setMaintenance] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/settings').then(r => r.json()).then(d => {
@@ -37,17 +35,21 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
-  // Records a simple page-view count (no unique-visitor dedup, no
-  // cookies/IP tracking - just a raw count of page loads, as requested).
-  // Fires once on initial mount, and again on every client-side route
-  // change (Next.js Link navigation doesn't trigger a full page reload, so
-  // without the router event, navigating between pages within the SPA
-  // wouldn't be counted at all).
+  // Records ONE count per visit, not per page view. A visitor browsing 5
+  // pages in one session should count as 1 visit, not 5 - otherwise the
+  // admin's "visitors" number doesn't actually represent how many people
+  // came to the site, it represents page views, which is a different (and
+  // less useful) metric. sessionStorage marks the visit as already recorded
+  // for this browser tab; it persists across client-side navigation
+  // (Link clicks, router.push) but clears when the tab/browser closes, so a
+  // genuinely new visit later still gets counted.
   useEffect(() => {
-    const record = () => fetch('/api/visitors', { method: 'POST' }).catch(() => {});
-    record();
-    router.events.on('routeChangeComplete', record);
-    return () => router.events.off('routeChangeComplete', record);
+    if (typeof window === 'undefined') return;
+    const alreadyCounted = sessionStorage.getItem('zelux-visit-counted');
+    if (!alreadyCounted) {
+      fetch('/api/visitors', { method: 'POST' }).catch(() => {});
+      sessionStorage.setItem('zelux-visit-counted', '1');
+    }
   }, []);
 
   if (maintenance === null) return null; // brief check before paint
