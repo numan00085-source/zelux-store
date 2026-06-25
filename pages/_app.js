@@ -27,9 +27,18 @@ export default function App({ Component, pageProps }) {
   // criteria (manifest + service worker + HTTPS). Guarded with a feature
   // check since older/unsupported browsers simply won't have
   // navigator.serviceWorker - this must never throw or block rendering.
+  // Explicitly calling registration.update() forces an immediate check for
+  // a newer sw.js on every page load, rather than relying solely on the
+  // browser's own (sometimes delayed) update-check timing - this matters
+  // because the service worker's cache-first homepage strategy means an
+  // installed PWA can otherwise keep serving stale content for a long time
+  // after a real deployment, since skipWaiting/clients.claim only take
+  // effect once the browser actually notices the new file exists.
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
+      navigator.serviceWorker.register('/sw.js').then((registration) => {
+        registration.update().catch(() => {});
+      }).catch((err) => {
         console.error('Service worker registration failed', err);
       });
     }

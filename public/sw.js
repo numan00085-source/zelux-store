@@ -4,8 +4,18 @@
 // works offline for the shell), network-first for everything else (product
 // data, API routes, checkout) so prices/stock/cart state are never served
 // stale from cache - correctness matters more than speed for those.
-
-const CACHE_NAME = 'zelux-shell-v1';
+//
+// IMPORTANT: the homepage ('/') is cache-first, which means any browser/PWA
+// that already cached it under an old CACHE_NAME will keep serving that
+// stale HTML/JS indefinitely - even after a new deployment - until this
+// version string changes. This was the actual root cause of a real bug:
+// the site appeared fixed in incognito (no prior cache existed) but still
+// showed old content on devices that had visited/installed it before this
+// fix, since the service worker's activate handler only deletes caches
+// that don't match the CURRENT CACHE_NAME - bumping it is what triggers
+// that cleanup. Bump this version any time the cached APP_SHELL routes
+// change in a way existing installs need to pick up immediately.
+const CACHE_NAME = 'zelux-shell-v2';
 const APP_SHELL = [
   '/',
   '/site.webmanifest',
