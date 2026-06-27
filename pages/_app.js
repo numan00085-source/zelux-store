@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import '../styles/globals.css';
 import AdSlot from '../components/AdSlot';
+import IntroAnimation from '../components/IntroAnimation';
 
 function MaintenanceScreen({ message }) {
   return (
@@ -15,6 +16,7 @@ function MaintenanceScreen({ message }) {
 
 export default function App({ Component, pageProps }) {
   const [maintenance, setMaintenance] = useState(null);
+  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
     fetch('/api/settings').then(r => r.json()).then(d => {
@@ -69,6 +71,15 @@ export default function App({ Component, pageProps }) {
 
   return (
     <>
+      {/* Renders as a fixed overlay (z-[100], see IntroAnimation.js) on top
+          of the actual page, which loads/renders simultaneously underneath -
+          this means there's no extra wait once the animation finishes,
+          since the real content has been ready the whole time. The
+          component's own sessionStorage check skips it entirely (and calls
+          onComplete immediately) for repeat page views within the same
+          browser tab session, so it's shown once per visit, not on every
+          internal navigation. */}
+      {!introDone && <IntroAnimation onComplete={() => setIntroDone(true)} />}
       <Component {...pageProps} />
       <AdSlot placement="homepage-social-bar" />
     </>
