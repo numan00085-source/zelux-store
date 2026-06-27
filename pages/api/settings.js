@@ -7,8 +7,18 @@ const DEFAULTS = {
   heroSubtitle: 'Est. 2024 - Luxury Redefined',
   announcementText: 'Free Shipping on Orders Over {shippingThreshold} - Worldwide Delivery - Secure Checkout - New Arrivals Weekly',
   accentColor: '#3FD8F2',
-  instagramHandle: '@zelux.us',
-  instagramUrl: 'https://instagram.com/zelux.us',
+  // Each platform stores ONLY the username - the profile URL is built from
+  // a per-platform template (see lib/socialPlatforms.js), so the admin
+  // never has to construct or paste a full URL, just type a handle. An
+  // empty string means that platform is not connected and won't render
+  // anywhere on the storefront.
+  socialUsernames: {
+    instagram: 'zelux.us',
+    tiktok: '',
+    youtube: '',
+    linkedin: '',
+    pinterest: '',
+  },
   footerTagline: 'Luxury redefined for the modern era. Curated fashion and technology for those who refuse to settle.',
   footerSupportText: 'All customer support is handled exclusively via Instagram.',
   freeShippingThreshold: 150,
