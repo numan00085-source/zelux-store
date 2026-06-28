@@ -64,7 +64,8 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-zelux-gray-mid/30 py-6 text-center">
-        <p className="text-xs text-zelux-gray tracking-wider">&copy; {new Date().getFullYear()} ZELUX. All rights reserved. | zelux.us</p>
+        <p className="text-xs text-zelux-gray tracking-wider">&copy; {new Date().getFullYear()} ZELUX. All rights reserved. | zeluxus.com</p>
+        <Link href="/returns-policy" className="text-xs text-zelux-gray hover:text-zelux-cyan tracking-wider transition-colors duration-300 mt-2 inline-block">Returns Policy</Link>
       </div>
     </footer>
   );
