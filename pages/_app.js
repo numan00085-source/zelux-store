@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
 import '../styles/globals.css';
 import AdSlot from '../components/AdSlot';
 import IntroAnimation from '../components/IntroAnimation';
@@ -71,6 +72,30 @@ export default function App({ Component, pageProps }) {
 
   return (
     <>
+      <Head>
+        {/* Real fix for a real bug: the site had NO title or meta
+            description at all anywhere in the HTML, which is exactly why
+            Google/search results and social link previews only ever showed
+            the bare URL - there was nothing for them to read. This lives in
+            _app.js (not _document.js) deliberately: Next.js explicitly warns
+            against and effectively ignores <title> placed in _document.js's
+            <Head>, since _document.js only renders on the initial prerender
+            - the same category of mistake already caught once before in
+            this project for the viewport meta tag. Individual pages can
+            still override these with their own next/head <title> if ever
+            needed - this just ensures every page has a sensible default
+            instead of nothing at all. */}
+        <title>ZELUX - Premium Streetwear, Footwear & Electronics</title>
+        <meta name="description" content="ZELUX is a premium e-commerce destination for curated streetwear, footwear, and electronics. Worldwide shipping, secure checkout, new arrivals weekly." />
+        <meta property="og:title" content="ZELUX - Premium Streetwear, Footwear & Electronics" />
+        <meta property="og:description" content="Premium streetwear, footwear, and electronics. Worldwide shipping, secure checkout, new arrivals weekly." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.zeluxus.com" />
+        <meta property="og:image" content="https://www.zeluxus.com/android-chrome-512x512.png" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="ZELUX - Premium Streetwear, Footwear & Electronics" />
+        <meta name="twitter:description" content="Premium streetwear, footwear, and electronics. Worldwide shipping, secure checkout, new arrivals weekly." />
+      </Head>
       {/* Renders as a fixed overlay (z-[100], see IntroAnimation.js) on top
           of the actual page, which loads/renders simultaneously underneath -
           this means there's no extra wait once the animation finishes,
