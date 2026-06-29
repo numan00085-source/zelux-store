@@ -76,7 +76,12 @@ export async function getServerSideProps({ res }) {
   // legitimately appear with availability="out of stock"), but a product
   // missing a price or image is genuinely unsubmittable, so those are
   // filtered out rather than sent as malformed <item> entries.
-  const validProducts = products.filter(p => p.price && p.images?.[0]);
+  // Digital Assets are excluded from this feed - Google Shopping/Merchant
+  // Center's product feed is built around shippable physical goods
+  // (shipping settings, GTIN, condition, etc.), and submitting a digital
+  // download as a regular product risks disapproval or a mismatched
+  // shopping experience for searchers expecting a shipped item.
+  const validProducts = products.filter(p => p.price && p.images?.[0] && !p.isDigital);
 
   res.setHeader('Content-Type', 'text/xml');
   res.write(buildFeedXml(validProducts));

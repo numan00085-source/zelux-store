@@ -63,6 +63,14 @@ export default async function handler(req, res) {
         customerName: session.metadata?.customerName || session.customer_details?.name || 'Unknown',
         customerEmail: session.metadata?.customerEmail || session.customer_details?.email || '',
         address: session.metadata?.shippingAddress || '',
+        // Digital Assets: isDigitalOrder flags this order as needing manual
+        // delivery (no automatic email per explicit decision - see
+        // digitalFileLinks below) rather than physical shipping. The admin
+        // panel uses this to show the email prominently and surface the
+        // exact file link(s) sold, rather than the admin having to
+        // separately look up which product(s) were purchased.
+        isDigitalOrder: session.metadata?.isDigitalOrder === 'true',
+        digitalFileLinks: session.metadata?.digitalFileLinks || '',
         status: 'Processing',
         createdAt: new Date().toISOString(),
         stripeSessionId: session.id,

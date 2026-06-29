@@ -9,7 +9,7 @@ const SITE_URL = 'https://www.zeluxus.com';
 // Category pages (apparel/footwear/electronics) were removed - the home
 // page is now the single product-browsing surface, so this list no longer
 // includes /collections/* entries.
-const STATIC_PATHS = ['/', '/returns-policy'];
+const STATIC_PATHS = ['/', '/returns-policy', '/digital-assets'];
 
 function buildSitemapXml(urls) {
   const urlEntries = urls

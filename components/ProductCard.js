@@ -31,7 +31,7 @@ export default function ProductCard({ product }) {
           )}
         </div>
         <div className="mt-3">
-          <p className="text-[10px] text-zelux-gray tracking-widest uppercase mb-1">{product.category}</p>
+          <p className="text-[10px] text-zelux-gray tracking-widest uppercase mb-1">{product.isDigital ? 'Digital' : product.category}</p>
           <h3 className="font-display text-lg font-light text-zelux-white group-hover:text-zelux-cyan transition-colors duration-300 truncate">{product.name}</h3>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-sm font-semibold text-zelux-cyan">${product.price}</span>

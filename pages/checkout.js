@@ -10,6 +10,12 @@ export default function Checkout() {
   const cart = useCartStore(s => s.cart);
   const total = useCartStore(s => s.total());
   const user = useAuthStore(s => s.user);
+  // If every item in the cart is a digital asset, address/country become
+  // optional rather than required - per explicit decision, email is what
+  // actually matters for delivery here, not a shipping address. A MIXED
+  // cart (some physical, some digital) still requires the full address,
+  // since at least one item genuinely needs to ship.
+  const isAllDigitalCart = cart.length > 0 && cart.every(item => item.isDigital);
   const [hydrated, setHydrated] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', address: '', city: '', state: '', zip: '', country: '' });
   const [loading, setLoading] = useState(false);
@@ -57,8 +63,11 @@ export default function Checkout() {
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.address) { setError('Please fill in all required fields.'); return; }
-    if (!form.country) { setError('Please select a shipping country.'); return; }
+    if (!form.name || !form.email) { setError('Please fill in all required fields.'); return; }
+    if (!isAllDigitalCart) {
+      if (!form.address) { setError('Please fill in all required fields.'); return; }
+      if (!form.country) { setError('Please select a shipping country.'); return; }
+    }
     setLoading(true); setError('');
     try {
       const res = await fetch('/api/create-checkout-session', {
@@ -95,8 +104,8 @@ export default function Checkout() {
         <h1 className="font-display text-4xl font-light mb-10 text-zelux-white">Checkout</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div>
-            <h2 className="text-xs tracking-widest uppercase mb-6 text-zelux-cyan">Shipping Information</h2>
-            {user && savedAddresses.length > 0 && (
+            <h2 className="text-xs tracking-widest uppercase mb-6 text-zelux-cyan">{isAllDigitalCart ? 'Contact Information' : 'Shipping Information'}</h2>
+            {!isAllDigitalCart && user && savedAddresses.length > 0 && (
               <div className="mb-6">
                 <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">Use a saved address</label>
                 <select value={selectedAddressId} onChange={e => applySavedAddress(e.target.value)}
@@ -108,10 +117,24 @@ export default function Checkout() {
                 </select>
               </div>
             )}
+            {isAllDigitalCart && (
+              <div className="mb-6 flex items-center gap-2 text-xs text-zelux-cyan bg-zelux-cyan/10 border border-zelux-cyan/30 rounded-lg px-4 py-3">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8.25V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18V8.25m-18 0A2.25 2.25 0 015.25 6h13.5A2.25 2.25 0 0121 8.25m-18 0v.243a2.25 2.25 0 001.183 1.981l7.5 4.219a2.25 2.25 0 002.234 0l7.5-4.219A2.25 2.25 0 0021 8.493V8.25" /></svg>
+                This order is digital - no shipping needed. We'll deliver it to the email you enter below.
+              </div>
+            )}
             <div className="space-y-4">
               {[
                 { name: 'name', label: 'Full Name *', type: 'text' },
                 { name: 'email', label: 'Email Address *', type: 'email' },
+              ].map(f => (
+                <div key={f.name}>
+                  <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">{f.label}</label>
+                  <input name={f.name} type={f.type} value={form[f.name]} onChange={handleChange}
+                    className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300" />
+                </div>
+              ))}
+              {!isAllDigitalCart && [
                 { name: 'address', label: 'Street Address *', type: 'text' },
                 { name: 'city', label: 'City *', type: 'text' },
                 { name: 'state', label: 'State', type: 'text' },
@@ -123,10 +146,12 @@ export default function Checkout() {
                     className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300" />
                 </div>
               ))}
-              <div>
-                <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">Country *</label>
-                <CountrySelect value={form.country} onChange={code => setForm({ ...form, country: code })} />
-              </div>
+              {!isAllDigitalCart && (
+                <div>
+                  <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">Country *</label>
+                  <CountrySelect value={form.country} onChange={code => setForm({ ...form, country: code })} />
+                </div>
+              )}
             </div>
             {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
           </div>

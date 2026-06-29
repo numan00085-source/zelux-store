@@ -18,7 +18,13 @@ export default function Cart() {
   }, []);
 
   const { freeShippingThreshold, shippingFee } = shippingConfig;
-  const isFree = total >= freeShippingThreshold;
+  // An all-digital cart never owes a shipping fee - there is nothing to
+  // ship. Without this check, the cart would show "$5.99 shipping" (or
+  // whatever the configured fee is) on a cart containing only an e-book,
+  // which is both confusing and would incorrectly charge the customer for
+  // a delivery method that doesn't apply to what they're buying.
+  const isAllDigitalCart = cart.length > 0 && cart.every(item => item.isDigital);
+  const isFree = isAllDigitalCart || total >= freeShippingThreshold;
   const grandTotal = isFree ? total : total + shippingFee;
 
   return (
@@ -75,11 +81,13 @@ export default function Cart() {
               <h2 className="font-display text-2xl font-light mb-6 text-zelux-white">Order Summary</h2>
               <div className="space-y-3 mb-6 text-zelux-gray">
                 <div className="flex justify-between text-sm"><span>Subtotal</span><span className="text-zelux-white">${total.toFixed(2)}</span></div>
-                <div className="flex justify-between text-sm"><span>Shipping</span><span className="text-zelux-white">{isFree ? 'Free' : `$${shippingFee.toFixed(2)}`}</span></div>
+                <div className="flex justify-between text-sm"><span>Shipping</span><span className="text-zelux-white">{isAllDigitalCart ? 'N/A (digital)' : isFree ? 'Free' : `$${shippingFee.toFixed(2)}`}</span></div>
                 <div className="border-t border-zelux-gray-mid/30 pt-3 flex justify-between font-medium text-zelux-white"><span>Total</span><span className="text-zelux-cyan font-semibold">${grandTotal.toFixed(2)}</span></div>
               </div>
               <Link href="/checkout" className="btn-glow block w-full bg-zelux-cyan text-zelux-navy text-center py-4 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow-lg hover:scale-[1.02] transition-all duration-300">Proceed to Checkout</Link>
-              <p className="text-xs text-zelux-gray text-center mt-4">Free shipping on orders over ${freeShippingThreshold}</p>
+              {!isAllDigitalCart && (
+                <p className="text-xs text-zelux-gray text-center mt-4">Free shipping on orders over ${freeShippingThreshold}</p>
+              )}
             </div>
           </div>
         )}

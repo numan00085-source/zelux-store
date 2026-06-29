@@ -62,6 +62,19 @@ export default async function handler(req, res) {
       return bits.join(' | ');
     }).join(' ;; ').slice(0, 490);
 
+    // Digital Assets: any cart item with isDigital=true has no shipping
+    // concept - the customer gets a download link instead. Collecting these
+    // file URLs into the order record (rather than re-looking them up later
+    // from a product ID that might since have changed/been deleted) means
+    // the admin can always retrieve exactly what was sold at the time of
+    // purchase. Joined with a delimiter unlikely to appear in a URL, and
+    // truncated defensively to stay under Stripe's 500-char metadata limit -
+    // same reasoning as itemsSummary above, just a tighter cap since this is
+    // a secondary field, not the primary order summary.
+    const digitalItems = cart.filter(item => item.isDigital && item.fileUrl);
+    const isDigitalOrder = digitalItems.length > 0;
+    const digitalFileLinks = digitalItems.map(item => `${item.name}: ${item.fileUrl}`).join(' ;; ').slice(0, 400);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items,
@@ -91,8 +104,17 @@ export default async function handler(req, res) {
         // full name here so the address that reaches the admin panel
         // actually reflects what the customer selected, not Stripe's own
         // (now-removed) shipping address collection.
-        shippingAddress: `${form.address}, ${form.city}, ${form.state} ${form.zip}, ${SHIPPING_COUNTRIES.find(c => c.code === form.country)?.name || form.country}`,
+        // For an all-digital order, the customer may not have entered an
+        // address at all (no longer required - see checkout.js). Building
+        // the usual ", , , " string from empty fields would look like a
+        // broken/missing address in the admin panel rather than a
+        // deliberate "not needed" state, so this is explicit instead.
+        shippingAddress: isDigitalOrder && !form.address
+          ? 'Not applicable - digital order, delivered via email'
+          : `${form.address}, ${form.city}, ${form.state} ${form.zip}, ${SHIPPING_COUNTRIES.find(c => c.code === form.country)?.name || form.country}`,
         itemsSummary,
+        isDigitalOrder: isDigitalOrder ? 'true' : 'false',
+        digitalFileLinks,
       },
     });
 

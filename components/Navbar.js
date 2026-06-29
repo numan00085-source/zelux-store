@@ -55,6 +55,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="lg:hidden bg-zelux-navy-light border-t border-zelux-gray-mid/40 px-4 py-6 flex flex-col gap-4 animate-fade-in">
           <Link href="/" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Store</Link>
+          <Link href="/digital-assets" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Digital Assets</Link>
           <Link href={user ? "/profile" : "/login"} className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Account</Link>
           <Link href="/wishlist" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Wishlist</Link>
           <Link href="/cart" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Cart</Link>
