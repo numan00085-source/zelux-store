@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { getEffectiveStripeKeys, checkRateLimit } from '../../lib/redis';
+import { getEffectiveStripeKeys, checkRateLimit, getRedis } from '../../lib/redis';
 import { SHIPPING_COUNTRIES } from '../../components/CountrySelect';
 
 function getClientIp(req) {
@@ -75,10 +75,62 @@ export default async function handler(req, res) {
     const isDigitalOrder = digitalItems.length > 0;
     const digitalFileLinks = digitalItems.map(item => `${item.name}: ${item.fileUrl}`).join(' ;; ').slice(0, 400);
 
+    // Real fix: shipping was previously never actually charged through
+    // Stripe at all - cart.js and checkout.js only ever displayed a
+    // shipping figure as text, while the actual payment only ever included
+    // product line items. Fixed here by adding a genuine Stripe
+    // shipping_options entry, computed from settings read directly from
+    // Redis server-side - NOT from any shipping/total value the client
+    // sent in the request body, since trusting a client-computed charge
+    // amount would let a tampered request pay $0 shipping regardless of
+    // what the storefront UI displayed. An all-digital cart (every item
+    // isDigital) gets a genuine $0/"No shipping required" rate rather than
+    // simply omitting shipping_options, so the Stripe checkout page itself
+    // is explicit about why there's nothing to pay for delivery, matching
+    // what cart.js/checkout.js already show before the customer gets here.
+    const redis = getRedis();
+    const settingsRaw = await redis.get('zelux:settings');
+    const settings = settingsRaw ? JSON.parse(settingsRaw) : {};
+    const freeShippingThreshold = settings.freeShippingThreshold ?? 150;
+    const shippingFee = settings.shippingFee ?? 9.99;
+    const isAllDigitalCart = cart.length > 0 && cart.every(item => item.isDigital);
+
+    // total is computed server-side from the cart's own prices/quantities,
+    // not trusted from the client-sent value - this was a related gap worth
+    // closing at the same time: a tampered request claiming an inflated
+    // total could otherwise fake crossing the free-shipping threshold and
+    // get free shipping on an order that shouldn't qualify. The product
+    // prices themselves were already safe (line_items are built from each
+    // cart item's own price field below), so this only affects the
+    // shipping-threshold decision, not the actual amount charged for items.
+    const serverComputedTotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+
+    let shippingAmountCents;
+    let shippingLabel;
+    if (isAllDigitalCart) {
+      shippingAmountCents = 0;
+      shippingLabel = 'No shipping required (digital order)';
+    } else if (serverComputedTotal >= freeShippingThreshold) {
+      shippingAmountCents = 0;
+      shippingLabel = 'Free shipping';
+    } else {
+      shippingAmountCents = Math.round(shippingFee * 100);
+      shippingLabel = 'Standard shipping';
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: shippingAmountCents, currency: 'usd' },
+            display_name: shippingLabel,
+          },
+        },
+      ],
       success_url: `${req.headers.origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/cart`,
       // Deliberately NOT collecting shipping address via Stripe

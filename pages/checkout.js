@@ -84,7 +84,13 @@ export default function Checkout() {
     setLoading(false);
   };
 
-  const shipping = total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shippingFee;
+  // Real bug fixed here: this line previously computed shipping purely from
+  // the free-shipping threshold, never checking isAllDigitalCart at all -
+  // meaning a digital-only order (correctly shown as "N/A" on the cart page)
+  // would still get charged a real shipping fee at checkout and at payment,
+  // contradicting what cart.js already showed the customer. isAllDigitalCart
+  // must come first in this check, not be layered on top of it.
+  const shipping = isAllDigitalCart ? 0 : (total >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.shippingFee);
   const grandTotal = total + shipping;
 
   if (!hydrated || !user) return (
@@ -165,7 +171,7 @@ export default function Checkout() {
                     <span className="text-zelux-white">${(i.price * i.quantity).toFixed(2)}</span>
                   </div>
                 ))}
-                <div className="flex justify-between text-sm text-zelux-gray"><span>Shipping</span><span className="text-zelux-white">{shipping === 0 ? 'Free' : `$${shipping}`}</span></div>
+                <div className="flex justify-between text-sm text-zelux-gray"><span>Shipping</span><span className="text-zelux-white">{isAllDigitalCart ? 'N/A (digital)' : shipping === 0 ? 'Free' : `$${shipping}`}</span></div>
                 <div className="flex justify-between font-medium text-lg border-t border-zelux-gray-mid/30 pt-3 text-zelux-white"><span>Total</span><span className="text-zelux-cyan font-semibold">${grandTotal.toFixed(2)}</span></div>
               </div>
               <button onClick={handleSubmit} disabled={loading || cart.length === 0}
