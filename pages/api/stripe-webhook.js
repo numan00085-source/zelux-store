@@ -76,7 +76,42 @@ export default async function handler(req, res) {
         stripeSessionId: session.id,
       };
 
-      await addOrder(order);
+      const savedOrder = await addOrder(order);
+
+      // Notify the admin panel via push notification. This is a real
+      // cross-project HTTP call (zelux-admin is a separate Vercel
+      // deployment/domain, not shared code), authenticated with a shared
+      // secret so this can't be triggered by an arbitrary internet request
+      // hitting the admin's endpoint directly. Awaited (not fire-and-forget)
+      // because Vercel serverless functions can suspend/kill background
+      // work the instant a response is sent - an un-awaited call here could
+      // silently never complete. Wrapped in its own try/catch so a failure
+      // to notify (e.g. admin hasn't enabled notifications yet, or the
+      // admin deployment is briefly down) never prevents the order itself
+      // from being saved - the order record is the source of truth, the
+      // push notification is a convenience on top of it.
+      try {
+        await fetch('https://zelux-admin.vercel.app/api/push/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-internal-secret': process.env.INTERNAL_PUSH_SECRET || '',
+          },
+          body: JSON.stringify({
+            title: 'ZELUX: New Order',
+            // savedOrder (addOrder's return value), not the local `order`
+            // variable - addOrder() is what generates trackingNumber, and
+            // the local `order` object never receives it back, since its
+            // return value was previously discarded entirely. Referencing
+            // order.trackingNumber here would have silently produced
+            // "undefined" in every single notification.
+            body: `${savedOrder.productName} - $${savedOrder.total} (${savedOrder.trackingNumber})`,
+            url: '/dashboard',
+          }),
+        });
+      } catch (pushErr) {
+        console.error('Failed to send push notification for new order', pushErr);
+      }
     } catch (err) {
       console.error('Failed to save order from webhook', err);
     }
