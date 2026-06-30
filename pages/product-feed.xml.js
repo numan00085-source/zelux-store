@@ -81,7 +81,22 @@ export async function getServerSideProps({ res }) {
   // (shipping settings, GTIN, condition, etc.), and submitting a digital
   // download as a regular product risks disapproval or a mismatched
   // shopping experience for searchers expecting a shipped item.
-  const validProducts = products.filter(p => p.price && p.images?.[0] && !p.isDigital);
+  //
+  // Temporarily excluding any product whose name suggests a kids'
+  // camera/video-monitoring device (e.g. "Adults/Kids Smart Video Walkie
+  // Talkie with HD Dual Camera") - Pinterest rejected the merchant account
+  // citing "prohibited products" without naming which one specifically,
+  // and this is the most plausible candidate given Pinterest's strict
+  // child-safety review for any camera/video device marketed toward kids.
+  // This is a precaution pending Pinterest's appeal outcome, not a
+  // confirmed violation - matched by name pattern rather than a hardcoded
+  // product ID, since IDs aren't stable (they were just migrated to UUIDs)
+  // and a name-based match also catches any future product with the same
+  // red flag without needing code changes each time.
+  const PINTEREST_SENSITIVE_NAME_PATTERN = /kids?.{0,20}(camera|video)|.{0,20}(camera|video).{0,20}kids?/i;
+  const validProducts = products.filter(p =>
+    p.price && p.images?.[0] && !p.isDigital && !PINTEREST_SENSITIVE_NAME_PATTERN.test(p.name || '')
+  );
 
   res.setHeader('Content-Type', 'text/xml');
   res.write(buildFeedXml(validProducts));
