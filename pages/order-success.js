@@ -1,12 +1,53 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useCartStore } from '../lib/store';
 
 export default function OrderSuccess() {
   const clearCart = useCartStore(s => s.clearCart);
+  const router = useRouter();
+  const [order, setOrder] = useState(null);
+
   useEffect(() => { clearCart(); }, []);
+
+  useEffect(() => {
+    const { session_id } = router.query;
+    if (!session_id) return;
+    fetch(`/api/order-by-session?session_id=${encodeURIComponent(session_id)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setOrder(data); })
+      .catch(() => {});
+  }, [router.query]);
+
+  useEffect(() => {
+    if (!order?.customerEmail) return;
+    const edd = new Date(order.createdAt || Date.now());
+    edd.setDate(edd.getDate() + 12);
+    const estimatedDeliveryDate = edd.toISOString().slice(0, 10);
+    const deliveryCountry = order.countryCode || 'US';
+    window.renderOptIn = function () {
+      window.gapi.load('surveyoptin', function () {
+        window.gapi.surveyoptin.render({
+          merchant_id: 5816933216,
+          order_id: order.trackingNumber || 'ZELUX-ORDER',
+          email: order.customerEmail,
+          delivery_country: deliveryCountry,
+          estimated_delivery_date: estimatedDeliveryDate,
+        });
+      });
+    };
+    const script = document.createElement('script');
+    script.src = 'https://apis.google.com/js/platform.js?onload=renderOptIn';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    return () => {
+      try { document.body.removeChild(script); } catch(e) {}
+      delete window.renderOptIn;
+    };
+  }, [order]);
 
   return (
     <>

@@ -164,6 +164,7 @@ export default async function handler(req, res) {
         shippingAddress: isDigitalOrder && !form.address
           ? 'Not applicable - digital order, delivered via email'
           : `${form.address}, ${form.city}, ${form.state} ${form.zip}, ${SHIPPING_COUNTRIES.find(c => c.code === form.country)?.name || form.country}`,
+        countryCode: form.country || '',
         itemsSummary,
         isDigitalOrder: isDigitalOrder ? 'true' : 'false',
         digitalFileLinks,
