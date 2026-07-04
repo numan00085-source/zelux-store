@@ -25,6 +25,22 @@ function buildFeedXml(products) {
     // condition/brand are required-or-recommended by Google's spec; every
     // product here is a new, ZELUX-branded item, so these are constant
     // rather than per-product fields that don't exist in our data model.
+    // Determine Google product category and required apparel attributes
+    const isApparel = p.category === 'apparel' || p.category === 'footwear';
+    const isFootwear = p.category === 'footwear';
+    // Google product category IDs: 1604=Apparel, 187=Footwear, 5047=Electronics, 6=Home
+    const googleCategory = isFootwear ? '187' : isApparel ? '1604' : p.category === 'electronics' ? '5047' : '6';
+    // Primary color from product data, fallback to 'Multicolor'
+    const primaryColor = (p.colors && p.colors[0]) ? p.colors[0] : 'Multicolor';
+
+    const apparelAttrs = isApparel ? `
+    <g:age_group>adult</g:age_group>
+    <g:gender>unisex</g:gender>
+    <g:color>${escapeXml(primaryColor)}</g:color>` : '';
+
+    // US shipping - flat $5.99, free over $30 (matches our store settings)
+    const shippingPrice = Number(p.price) >= 30 ? '0.00' : '5.99';
+
     return `  <item>
     <g:id>${escapeXml(p.id)}</g:id>
     <title>${escapeXml(p.name)}</title>
@@ -35,6 +51,12 @@ function buildFeedXml(products) {
     <g:price>${Number(p.price).toFixed(2)} USD</g:price>
     <g:brand>ZELUX</g:brand>
     <g:condition>new</g:condition>
+    <g:google_product_category>${googleCategory}</g:google_product_category>
+    <g:shipping>
+      <g:country>US</g:country>
+      <g:service>Standard</g:service>
+      <g:price>${shippingPrice} USD</g:price>
+    </g:shipping>${apparelAttrs}
   </item>`;
   }).join('\n');
 
