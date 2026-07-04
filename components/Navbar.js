@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useCartStore, useAuthStore } from '../lib/store';
 
 export default function Navbar() {
@@ -7,6 +8,8 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const cart = useCartStore(s => s.cart);
   const user = useAuthStore(s => s.user);
+  const logout = useAuthStore(s => s.logout);
+  const router = useRouter();
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
   useEffect(() => {
@@ -14,6 +17,12 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const handleLogout = () => {
+    setMenuOpen(false);
+    logout();
+    router.push('/');
+  };
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-zelux-navy/95 backdrop-blur-md shadow-glow-sm' : 'bg-zelux-navy/80 backdrop-blur-sm'} border-b border-zelux-gray-mid/40`}>
@@ -57,8 +66,15 @@ export default function Navbar() {
           <Link href="/" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Store</Link>
           <Link href="/digital-assets" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Digital Assets</Link>
           <Link href={user ? "/profile" : "/login"} className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Account</Link>
+          <Link href="/profile?tab=support" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Support</Link>
           <Link href="/wishlist" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Wishlist</Link>
           <Link href="/cart" className="text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors" onClick={() => setMenuOpen(false)}>Cart</Link>
+          {user && (
+            <>
+              <div className="border-t border-zelux-gray-mid/30 pt-4 mt-1"></div>
+              <button onClick={handleLogout} className="text-xs tracking-widest uppercase text-zelux-gray hover:text-red-400 transition-colors text-left">Sign Out</button>
+            </>
+          )}
         </div>
       )}
     </nav>

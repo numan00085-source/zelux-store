@@ -52,6 +52,11 @@ export default function Profile() {
   const toggle = useWishlistStore(s => s.toggle);
   const router = useRouter();
   const [tab, setTab] = useState('orders');
+
+  // Support ?tab=support URL
+  useEffect(() => {
+    if (router.query.tab) setTab(router.query.tab);
+  }, [router.query.tab]);
   const [orders, setOrders] = useState([]);
   const [expandedOrderTracking, setExpandedOrderTracking] = useState(null);
   const [hydrated, setHydrated] = useState(false);
@@ -433,40 +438,48 @@ export default function Profile() {
 
           {/* SUPPORT */}
           {tab === 'support' && (
-            <div className="max-w-2xl animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-8 relative overflow-hidden h-fit">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-zelux-cyan/5 rounded-full blur-2xl"></div>
-                <div className="flex items-center gap-3 mb-6 relative">
-                  <div className="w-11 h-11 bg-gradient-to-br from-zelux-cyan to-zelux-cyan-dark rounded-full flex items-center justify-center shadow-glow-sm">
-                    <svg className="w-5 h-5 text-zelux-navy" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm text-zelux-white">Instagram Support</p>
-                    <p className="text-xs text-zelux-gray">Direct Message</p>
-                  </div>
+            <div className="max-w-2xl animate-fade-in space-y-4">
+
+              {/* Instagram support card */}
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-6 flex items-center gap-4">
+                <div className="w-11 h-11 bg-gradient-to-br from-zelux-cyan to-zelux-cyan-dark rounded-full flex items-center justify-center shadow-glow-sm flex-shrink-0">
+                  <svg className="w-5 h-5 text-zelux-navy" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                 </div>
-                <p className="text-sm text-zelux-gray leading-relaxed mb-6 relative">
-                  For quick replies and updates, message us directly on Instagram at <strong className="text-zelux-cyan">@zelux.us</strong>.
-                </p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-zelux-white">Quick support via Instagram</p>
+                  <p className="text-xs text-zelux-gray mt-0.5">Message us at <span className="text-zelux-cyan">@zelux.us</span> for fast replies</p>
+                </div>
                 <a href="https://instagram.com/zelux.us" target="_blank" rel="noreferrer"
-                  className="btn-glow relative inline-flex items-center gap-2 bg-zelux-cyan text-zelux-navy px-8 py-3 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow hover:scale-105 transition-all duration-300">
-                  Message @zelux.us &rarr;
+                  className="flex-shrink-0 text-xs tracking-widest uppercase text-zelux-cyan border border-zelux-cyan/50 hover:bg-zelux-cyan hover:text-zelux-navy px-4 py-2 rounded-full transition-all duration-300">
+                  Message
                 </a>
               </div>
 
-              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl flex flex-col h-[480px]">
-                <div className="px-6 py-4 border-b border-zelux-gray-mid/30">
-                  <p className="font-medium text-sm text-zelux-white">ZELUX Support</p>
-                  <p className="text-xs text-zelux-gray">We typically reply within a day</p>
+              {/* Chat box */}
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl overflow-hidden flex flex-col" style={{height: '460px'}}>
+                <div className="px-5 py-4 border-b border-zelux-gray-mid/30 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-zelux-white">ZELUX Support</p>
+                    <p className="text-xs text-zelux-gray">We typically reply within 24 hours</p>
+                  </div>
+                  <div className="w-2 h-2 rounded-full bg-zelux-cyan shadow-glow-sm"></div>
                 </div>
+
                 <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
                   {supportMessages.length === 0 && (
-                    <p className="text-xs text-zelux-gray text-center mt-10">Send us a message and we'll get back to you here.</p>
+                    <div className="flex flex-col items-center justify-center h-full text-center">
+                      <svg className="w-10 h-10 text-zelux-gray-mid mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                      <p className="text-sm text-zelux-gray">No messages yet</p>
+                      <p className="text-xs text-zelux-gray/60 mt-1">Send us a message and we'll get back to you here.</p>
+                    </div>
                   )}
                   {supportMessages.map(m => (
                     <div key={m.id} className={`flex ${m.sender === 'customer' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.sender === 'customer' ? 'bg-zelux-cyan text-zelux-navy' : 'bg-zelux-navy-light text-zelux-white border border-zelux-gray-mid/30'}`}>
-                        {m.imageUrl && <img src={m.imageUrl} alt="attachment" className="rounded-lg mb-1.5 max-h-48 object-cover" />}
+                      {m.sender !== 'customer' && (
+                        <div className="w-7 h-7 rounded-full bg-zelux-cyan/20 border border-zelux-cyan/30 flex items-center justify-center text-[10px] font-bold text-zelux-cyan mr-2 flex-shrink-0 mt-0.5">Z</div>
+                      )}
+                      <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.sender === 'customer' ? 'bg-zelux-cyan text-zelux-navy rounded-br-sm' : 'bg-zelux-navy-light text-zelux-white border border-zelux-gray-mid/30 rounded-bl-sm'}`}>
+                        {m.imageUrl && <img src={m.imageUrl} alt="attachment" className="rounded-lg mb-1.5 max-h-40 object-cover" />}
                         {m.text && <p className="text-sm leading-relaxed">{m.text}</p>}
                         <p className={`text-[10px] mt-1 ${m.sender === 'customer' ? 'text-zelux-navy/60' : 'text-zelux-gray'}`}>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
@@ -474,31 +487,30 @@ export default function Profile() {
                   ))}
                   <div ref={supportEndRef}></div>
                 </div>
+
                 <div className="p-4 border-t border-zelux-gray-mid/30 flex items-center gap-2">
                   <input type="file" ref={supportFileInputRef} accept="image/*" className="hidden" onChange={handleSupportImageSelected} />
                   <button onClick={() => supportFileInputRef.current?.click()} disabled={supportUploading}
                     className="w-9 h-9 flex-shrink-0 rounded-full border border-zelux-gray-mid/40 flex items-center justify-center text-zelux-gray hover:text-zelux-cyan hover:border-zelux-cyan/50 transition-colors disabled:opacity-50">
-                    {supportUploading ? (
-                      <div className="w-3.5 h-3.5 border-2 border-zelux-cyan/30 border-t-zelux-cyan rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                    )}
+                    {supportUploading
+                      ? <div className="w-3.5 h-3.5 border-2 border-zelux-cyan/30 border-t-zelux-cyan rounded-full animate-spin"></div>
+                      : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                    }
                   </button>
-                  <input value={supportInput} onChange={e => setSupportInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendSupportMessage()}
+                  <input value={supportInput} onChange={e => setSupportInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSendSupportMessage()}
                     placeholder="Type a message..."
-                    className="flex-1 bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-full px-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan" />
+                    className="flex-1 bg-zelux-navy-light border border-zelux-gray-mid/40 rounded-full px-4 py-2.5 text-sm text-zelux-white placeholder-zelux-gray outline-none focus:border-zelux-cyan transition-colors" />
                   <button onClick={handleSendSupportMessage} disabled={supportSending || !supportInput.trim()}
-                    className="btn-glow w-9 h-9 flex-shrink-0 rounded-full bg-zelux-cyan text-zelux-navy flex items-center justify-center hover:shadow-glow transition-all disabled:opacity-50">
+                    className="w-9 h-9 flex-shrink-0 rounded-full bg-zelux-cyan text-zelux-navy flex items-center justify-center hover:shadow-glow transition-all disabled:opacity-40">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                   </button>
                 </div>
               </div>
+
             </div>
           )}
 
-          <button onClick={() => { logout(); router.push('/'); }} className="sm:hidden mt-8 w-full text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors border border-zelux-gray-mid/50 px-5 py-3 rounded-full">
-            Sign Out
-          </button>
         </div>
       </main>
       <Footer />
