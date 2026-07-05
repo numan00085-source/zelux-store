@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Script from 'next/script';
 import '../styles/globals.css';
 import AdSlot from '../components/AdSlot';
 import IntroAnimation from '../components/IntroAnimation';
@@ -79,6 +80,8 @@ export default function App({ Component, pageProps }) {
           onComplete immediately) for repeat page views within the same
           browser tab session, so it's shown once per visit, not on every
           internal navigation. */}
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-PE22VJ7SRB" strategy="afterInteractive" />
+      <Script id="ga4-init" strategy="afterInteractive" dangerouslySetInnerHTML={{__html: 'window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-PE22VJ7SRB");'}} />
       {!introDone && <IntroAnimation onComplete={() => setIntroDone(true)} />}
       <Component {...pageProps} />
       <AdSlot placement="homepage-social-bar" />
