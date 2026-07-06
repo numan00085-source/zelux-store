@@ -1,60 +1,82 @@
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 
 const RULES = [
   {
-    match: ['return', 'refund', 'exchange', 'send back'],
-    reply: "All ZELUX sales are final — we don't accept returns or exchanges. However, if your item arrives damaged or incorrect, reach out to us on Instagram @zelux.us and we'll make it right."
+    match: ['return', 'refund', 'exchange', 'send back', 'give back'],
+    reply: "All ZELUX sales are final — we don't accept returns or exchanges. That said, if your item arrives damaged or incorrect (our mistake), reach us on <support> or <instagram> and we'll sort it out immediately.",
   },
   {
-    match: ['track', 'tracking', 'order status', 'where is my', 'delivery'],
-    reply: "To track your order, visit zeluxus.com/receipt and enter your ZELUX tracking number (format: ZELUX-XXXXXXX). You'll see full status updates there."
+    match: ['track', 'tracking number', 'where is my order', 'order status', 'zelux-'],
+    reply: "Visit our <receipt> page and enter your ZELUX-XXXXXXX tracking number to see full status updates and your order history.",
   },
   {
-    match: ['shipping', 'ship', 'how long', 'delivery time', 'when will'],
-    reply: "We offer standard worldwide shipping. Estimated delivery is 7–14 business days. Free shipping on orders over $30, otherwise $5.99."
+    match: ['shipping', 'delivery time', 'how long', 'when will', 'arrive', 'estimated'],
+    reply: "We ship worldwide. Estimated delivery is 7–14 business days. Shipping is free on orders over $30, otherwise a flat $5.99.",
   },
   {
-    match: ['size', 'sizing', 'fit', 'measurement', 'what size'],
-    reply: "Size guides are available on each product page. For apparel, we recommend going one size up if you prefer an oversized fit. Need specific advice? DM us on Instagram @zelux.us."
+    match: ['size', 'sizing', 'fit', 'measurements', 'what size should'],
+    reply: "Each product page has a size guide. For apparel, go one size up for an oversized fit. Still unsure? <support> or DM <instagram> and we'll advise based on the specific item.",
   },
   {
-    match: ['payment', 'pay', 'card', 'stripe', 'checkout'],
-    reply: "We accept all major credit and debit cards via Stripe — our secure payment processor. Your card details are never stored on our servers."
+    match: ['payment', 'card', 'pay', 'stripe', 'checkout', 'secure'],
+    reply: "We accept all major credit and debit cards via Stripe — fully secure, PCI-compliant. Your card details are never stored on our servers.",
   },
   {
-    match: ['digital', 'ebook', 'e-book', 'download', 'pdf'],
-    reply: "Our digital products (like The Capsule Edit guide) are delivered to your email manually after purchase, usually within 24 hours. Visit zeluxus.com/digital-assets to browse."
+    match: ['digital', 'ebook', 'e-book', 'capsule edit', 'download', 'pdf', 'guide'],
+    reply: "Digital products (like The Capsule Edit) are delivered to your email within 24 hours after purchase. Browse them at zeluxus.com/digital-assets.",
   },
   {
-    match: ['discount', 'coupon', 'promo', 'sale', 'offer'],
-    reply: "We don't currently offer discount codes, but we do have free shipping on orders over $30. Follow us on Instagram @zelux.us for any future promotions."
+    match: ['discount', 'coupon', 'promo code', 'sale', 'voucher'],
+    reply: "We don't currently run discount codes — our pricing is already as lean as possible. Orders over $30 get free shipping though! Follow <instagram> for any future promotions.",
   },
   {
-    match: ['contact', 'support', 'help', 'question', 'problem', 'issue'],
-    reply: "You can reach us via our Support Chat at zeluxus.com/support, or message us directly on Instagram @zelux.us. We typically reply within 24 hours."
+    match: ['cancel', 'cancellation', 'cancel my order'],
+    reply: "Orders go straight into processing once placed and can't be cancelled. Please review your cart carefully before checkout.",
   },
   {
-    match: ['instagram', 'tiktok', 'social', 'follow'],
-    reply: "Follow us on Instagram @zelux.us for new arrivals, style inspiration, and updates. We're also on TikTok!"
+    match: ['contact', 'support', 'help', 'speak to', 'talk to', 'human', 'agent', 'issue', 'problem'],
+    reply: "Our team is available via <support> (real-time chat) or on <instagram>. We typically reply within a few hours.",
   },
   {
-    match: ['product', 'item', 'buy', 'purchase', 'shop', 'best', 'recommend', 'popular'],
-    reply: "Browse our full collection at zeluxus.com — we carry premium streetwear, footwear, electronics, and digital guides. New arrivals drop regularly!"
+    match: ['instagram', 'ig', 'social', 'follow us', 'tiktok'],
+    reply: "Follow us on Instagram <instagram> for new arrivals, style content, and updates. We reply to DMs too!",
   },
   {
-    match: ['cancel', 'cancellation'],
-    reply: "Orders cannot be cancelled once placed as they go straight to processing. Please double-check your order before completing checkout."
+    match: ['product', 'best seller', 'popular', 'recommend', 'what do you sell', 'collection'],
+    reply: "We carry premium streetwear, footwear, electronics, and digital guides. Browse everything at zeluxus.com or check our featured drops on <instagram>.",
   },
   {
-    match: ['hello', 'hi', 'hey', 'hii', 'helo', 'sup', 'yo'],
-    reply: "Hey! Welcome to ZELUX 👋 I'm your shopping assistant. Ask me anything about our products, shipping, sizing, or orders!"
+    match: ['hello', 'hi', 'hey', 'hii', 'helo', 'sup', 'yo', 'good morning', 'good evening'],
+    reply: "Hey! Welcome to ZELUX 👋 I can help with sizing, shipping, orders, returns, or anything about our store. What do you need?",
+  },
+  {
+    match: ['receipt', 'invoice', 'order confirmation', 'proof of purchase'],
+    reply: "You can view and download your official ZELUX receipt at <receipt> — just enter your ZELUX tracking number.",
+  },
+  {
+    match: ['password', 'login', 'account', 'forgot', 'sign in'],
+    reply: "Head to zeluxus.com/login to sign in. If you've forgotten your password, use the reset option there. For account issues, reach us via <support>.",
   },
 ];
 
-const FALLBACK = "I'm not sure about that one! For specific questions, our support team is happy to help — chat with us at zeluxus.com/support or DM @zelux.us on Instagram.";
+const FALLBACK = "I'm not sure about that one — for anything specific, our team will know. Reach us via <support> or DM <instagram>.";
+const WELCOME = "Hi! I'm the ZELUX assistant. Ask me about sizing, shipping, orders, returns, or anything about our store.";
+const QUICK = ['Track my order', 'Shipping info', 'Return policy', 'Sizing help', 'Contact support'];
 
-const WELCOME = "Hi! I'm the ZELUX assistant 👋 Ask me about sizing, shipping, orders, returns, or anything about our store!";
+// Render reply text, replacing <support>, <instagram>, <receipt> with styled links
+function ReplyText({ text }) {
+  const parts = text.split(/(<support>|<instagram>|<receipt>)/g);
+  return (
+    <span>
+      {parts.map((p, i) => {
+        if (p === '<support>') return <a key={i} href="/support" className="underline font-semibold text-zelux-navy/80 hover:text-zelux-navy">Support Chat</a>;
+        if (p === '<instagram>') return <a key={i} href="https://instagram.com/zelux.us" target="_blank" rel="noreferrer" className="underline font-semibold text-zelux-navy/80 hover:text-zelux-navy">@zelux.us</a>;
+        if (p === '<receipt>') return <a key={i} href="/receipt" className="underline font-semibold text-zelux-navy/80 hover:text-zelux-navy">ZELUX Receipt</a>;
+        return p;
+      })}
+    </span>
+  );
+}
 
 function getReply(text) {
   const lower = text.toLowerCase();
@@ -72,85 +94,123 @@ export default function ChatBot() {
   const endRef = useRef(null);
   const inputRef = useRef(null);
 
+  // Reset chat each time bubble is opened — fresh session every time
+  const handleOpen = () => {
+    setMessages([{ from: 'bot', text: WELCOME }]);
+    setInput('');
+    setTyping(false);
+    setOpen(true);
+  };
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 100);
+    if (open) setTimeout(() => inputRef.current?.focus(), 120);
   }, [open]);
 
-  const send = () => {
-    if (!input.trim()) return;
-    const userText = input.trim();
+  const send = (text) => {
+    const msg = (text || input).trim();
+    if (!msg) return;
     setInput('');
-    setMessages(prev => [...prev, { from: 'user', text: userText }]);
+    setMessages(prev => [...prev, { from: 'user', text: msg }]);
     setTyping(true);
     setTimeout(() => {
       setTyping(false);
-      setMessages(prev => [...prev, { from: 'bot', text: getReply(userText) }]);
-    }, 800 + Math.random() * 400);
+      setMessages(prev => [...prev, { from: 'bot', text: getReply(msg) }]);
+    }, 700 + Math.random() * 300);
   };
 
-  const QUICK = ['Shipping info', 'Track order', 'Return policy', 'Sizing help', 'Contact support'];
+  const showQuick = messages.length <= 2;
 
   return (
     <>
       {open && (
-        <div className="fixed bottom-20 right-4 sm:right-6 z-50 w-[340px] sm:w-[380px] flex flex-col rounded-3xl overflow-hidden"
-          style={{maxHeight:'500px', boxShadow:'0 0 40px rgba(63,216,242,0.15), 0 20px 60px rgba(0,0,0,0.5)'}}>
-
+        <div
+          className="fixed bottom-20 right-4 sm:right-6 z-50 flex flex-col w-[340px] sm:w-[380px] rounded-3xl overflow-hidden"
+          style={{
+            maxHeight: '520px',
+            background: '#060B16',
+            boxShadow: '0 0 0 1px rgba(63,216,242,0.15), 0 0 60px rgba(63,216,242,0.12), 0 24px 64px rgba(0,0,0,0.6)',
+          }}
+        >
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3.5 flex-shrink-0"
-            style={{background:'linear-gradient(135deg,#060B16,#0A1628)', borderBottom:'1px solid rgba(63,216,242,0.15)'}}>
+          <div className="flex items-center gap-3 px-5 py-4 flex-shrink-0" style={{borderBottom: '1px solid rgba(63,216,242,0.12)', background: 'linear-gradient(135deg, #060B16 0%, #081222 100%)'}}>
             <div className="relative flex-shrink-0">
-              <div className="w-9 h-9 rounded-full bg-zelux-cyan/20 border border-zelux-cyan/40 flex items-center justify-center">
-                <span className="font-display text-base font-bold text-zelux-cyan">Z</span>
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{background: 'linear-gradient(135deg, rgba(63,216,242,0.2), rgba(63,216,242,0.05))', border: '1px solid rgba(63,216,242,0.3)'}}>
+                <span className="font-display text-lg font-bold text-zelux-cyan">Z</span>
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-zelux-navy"></div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-zelux-navy" style={{background: '#22c55e'}}></span>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-zelux-white">ZELUX Assistant</p>
-              <p className="text-[10px] text-green-400">Online · Instant replies</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-zelux-white tracking-wide">ZELUX Assistant</p>
+              <p className="text-[11px]" style={{color: '#22c55e'}}>Online · Instant replies</p>
             </div>
-            <button onClick={() => setOpen(false)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-zelux-navy transition-colors text-zelux-gray hover:text-zelux-white">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+            <button
+              onClick={() => setOpen(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full transition-colors"
+              style={{color: 'rgba(156,163,175,0.8)'}}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              </svg>
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-zelux-navy">
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{background: '#060B16'}}>
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}>
+              <div key={i} className={`flex items-end gap-2 ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {m.from === 'bot' && (
-                  <div className="w-6 h-6 rounded-full bg-zelux-cyan/20 border border-zelux-cyan/30 flex items-center justify-center flex-shrink-0 mb-0.5">
-                    <span className="text-[10px] font-bold text-zelux-cyan">Z</span>
+                  <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 mb-0.5" style={{background: 'rgba(63,216,242,0.12)', border: '1px solid rgba(63,216,242,0.25)'}}>
+                    <span className="text-[11px] font-bold text-zelux-cyan">Z</span>
                   </div>
                 )}
-                <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${m.from === 'user' ? 'bg-zelux-cyan text-zelux-navy rounded-br-sm font-medium' : 'bg-zelux-navy-light text-zelux-white border border-zelux-gray-mid/25 rounded-bl-sm'}`}>
-                  {m.text}
+                <div
+                  className="max-w-[80%] text-sm leading-relaxed"
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: m.from === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                    background: m.from === 'user' ? '#3FD8F2' : 'rgba(255,255,255,0.06)',
+                    color: m.from === 'user' ? '#060B16' : '#E5E7EB',
+                    border: m.from === 'user' ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                    fontWeight: m.from === 'user' ? '500' : '400',
+                  }}
+                >
+                  {m.from === 'bot' ? <ReplyText text={m.text} /> : m.text}
                 </div>
               </div>
             ))}
             {typing && (
               <div className="flex items-end gap-2">
-                <div className="w-6 h-6 rounded-full bg-zelux-cyan/20 border border-zelux-cyan/30 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[10px] font-bold text-zelux-cyan">Z</span>
+                <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{background: 'rgba(63,216,242,0.12)', border: '1px solid rgba(63,216,242,0.25)'}}>
+                  <span className="text-[11px] font-bold text-zelux-cyan">Z</span>
                 </div>
-                <div className="bg-zelux-navy-light border border-zelux-gray-mid/25 rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1">
-                  {[0,150,300].map(d => <span key={d} className="w-1.5 h-1.5 bg-zelux-cyan rounded-full animate-bounce" style={{animationDelay:d+'ms'}}></span>)}
+                <div style={{padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)'}}>
+                  <div className="flex gap-1.5">
+                    {[0, 150, 300].map(d => (
+                      <span key={d} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{background: '#3FD8F2', animationDelay: d + 'ms'}}></span>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
-            <div ref={endRef}></div>
+            <div ref={endRef}/>
           </div>
 
           {/* Quick buttons */}
-          {messages.length <= 2 && (
-            <div className="px-3 py-2 flex gap-1.5 flex-wrap bg-zelux-navy border-t border-zelux-gray-mid/20">
+          {showQuick && (
+            <div className="px-4 py-2.5 flex gap-1.5 flex-wrap flex-shrink-0" style={{borderTop: '1px solid rgba(255,255,255,0.06)', background: '#060B16'}}>
               {QUICK.map(q => (
-                <button key={q} onClick={() => { setMessages(prev => [...prev, {from:'user',text:q}]); setTyping(true); setTimeout(() => { setTyping(false); setMessages(prev => [...prev, {from:'bot',text:getReply(q)}]); }, 800); }}
-                  className="text-[11px] px-3 py-1.5 rounded-full bg-zelux-cyan/10 text-zelux-cyan border border-zelux-cyan/30 hover:bg-zelux-cyan/20 transition-colors whitespace-nowrap">
+                <button key={q} onClick={() => send(q)}
+                  className="text-[11px] px-3 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                  style={{background: 'rgba(63,216,242,0.08)', color: '#3FD8F2', border: '1px solid rgba(63,216,242,0.25)'}}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(63,216,242,0.15)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(63,216,242,0.08)'}
+                >
                   {q}
                 </button>
               ))}
@@ -158,27 +218,67 @@ export default function ChatBot() {
           )}
 
           {/* Input */}
-          <div className="px-3 py-3 bg-zelux-navy-light border-t border-zelux-gray-mid/20 flex items-center gap-2">
-            <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
+          <div className="flex items-center gap-2 px-3 py-3 flex-shrink-0" style={{borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)'}}>
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && send()}
-              placeholder="Type a question..."
-              className="flex-1 bg-zelux-navy border border-zelux-gray-mid/40 rounded-full px-4 py-2 text-sm text-zelux-white placeholder-zelux-gray outline-none focus:border-zelux-cyan transition-colors"/>
-            <button onClick={send} disabled={!input.trim()}
-              className="w-9 h-9 flex-shrink-0 rounded-full bg-zelux-cyan text-zelux-navy flex items-center justify-center hover:shadow-glow transition-all disabled:opacity-40">
-              <svg className="w-4 h-4 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              placeholder="Ask me anything..."
+              className="flex-1 text-sm outline-none"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '50px',
+                padding: '9px 16px',
+                color: '#fff',
+              }}
+              onFocus={e => e.target.style.borderColor = 'rgba(63,216,242,0.5)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+            />
+            <button
+              onClick={() => send()}
+              disabled={!input.trim()}
+              style={{
+                width: '38px', height: '38px', borderRadius: '50%', flexShrink: 0,
+                background: input.trim() ? '#3FD8F2' : 'rgba(63,216,242,0.2)',
+                color: input.trim() ? '#060B16' : 'rgba(63,216,242,0.5)',
+                border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s', cursor: input.trim() ? 'pointer' : 'not-allowed',
+              }}
+            >
+              <svg style={{width: '16px', height: '16px', transform: 'translateX(1px)'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+              </svg>
             </button>
           </div>
         </div>
       )}
 
-      {/* Bubble */}
-      <button onClick={() => setOpen(o => !o)}
-        className="fixed bottom-4 right-4 sm:right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-        style={{background: open ? '#060B16' : 'linear-gradient(135deg,#3FD8F2,#0EA5C9)', boxShadow:'0 0 30px rgba(63,216,242,0.4), 0 8px 32px rgba(0,0,0,0.3)', border: open ? '2px solid rgba(63,216,242,0.5)' : 'none'}}>
-        {open
-          ? <svg className="w-5 h-5 text-zelux-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
-          : <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        }
+      {/* Premium bubble */}
+      <button
+        onClick={open ? () => setOpen(false) : handleOpen}
+        style={{
+          position: 'fixed', bottom: '20px', right: '20px',
+          width: '56px', height: '56px', borderRadius: '50%',
+          background: open ? '#060B16' : 'linear-gradient(135deg, #3FD8F2 0%, #0891B2 100%)',
+          border: open ? '1.5px solid rgba(63,216,242,0.4)' : 'none',
+          boxShadow: '0 0 0 1px rgba(63,216,242,0.2), 0 0 30px rgba(63,216,242,0.35), 0 8px 32px rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', transition: 'all 0.25s', zIndex: 50,
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(63,216,242,0.3), 0 0 40px rgba(63,216,242,0.5), 0 12px 40px rgba(0,0,0,0.5)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(63,216,242,0.2), 0 0 30px rgba(63,216,242,0.35), 0 8px 32px rgba(0,0,0,0.4)'; }}
+      >
+        {open ? (
+          <svg style={{width: '18px', height: '18px', color: '#3FD8F2'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+          </svg>
+        ) : (
+          <svg style={{width: '24px', height: '24px', color: '#fff'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        )}
       </button>
     </>
   );
