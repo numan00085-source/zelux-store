@@ -16,12 +16,16 @@ async function fetchProducts() {
 function buildProductContext(products) {
   if (!products || !products.length) return '';
   return products.map(p => {
-    const sizes = p.sizes?.length ? ` | Sizes: ${p.sizes.join(', ')}` : '';
+    const sizes = p.sizes && p.sizes.length ? ' | Sizes: ' + p.sizes.join(', ') : '';
+    const colors = p.colors && p.colors.length ? ' | Colors: ' + p.colors.join(', ') : '';
+    const type = p.isDigital ? ' [Digital]' : '';
+    return '• ' + p.name + type + ' — $' + p.price + sizes + colors;
+  }).join(' | ');
+}` : '';
     const colors = p.colors?.length ? ` | Colors: ${p.colors.join(', ')}` : '';
     const type = p.isDigital ? ' [Digital]' : '';
     return `• ${p.name}${type} — $${p.price}${sizes}${colors}`;
-  }).join('
-');
+  }).join('\n');
 }
 
 const RULES = [
