@@ -1,6 +1,97 @@
 import { useState, useEffect, useRef } from 'react';
 
 const RULES = [
+  // Greetings
+  {
+    match: ['hello', 'hi', 'hey', 'hii', 'helo', 'sup', 'yo', 'good morning', 'good evening', 'good afternoon', 'whats up', "what's up"],
+    reply: "Hey! Welcome to ZELUX 👋 I'm your shopping assistant. I can help with sizing, orders, shipping, products, and more. What do you need?"
+  },
+  // Returns
+  {
+    match: ['return', 'refund', 'exchange', 'send back', 'give back', 'money back'],
+    reply: "All ZELUX sales are final — we don't accept returns or exchanges. However, if your item arrives damaged or incorrect (our error), contact us via <support> or <instagram> and we'll fix it right away."
+  },
+  // Order tracking
+  {
+    match: ['track', 'tracking number', 'where is my order', 'order status', 'zelux-', 'find my order', 'my order'],
+    reply: "To track your order, visit our <receipt> page and enter your ZELUX-XXXXXXX tracking number. You'll see live status updates, items ordered, and estimated delivery date."
+  },
+  // Shipping
+  {
+    match: ['shipping', 'delivery time', 'how long', 'when will', 'arrive', 'estimated delivery', 'ship to', 'international'],
+    reply: "We ship worldwide! Estimated delivery is 7–14 business days. Shipping is free on orders over $30, otherwise a flat $5.99. We ship to over 50 countries."
+  },
+  // Sizing
+  {
+    match: ['size', 'sizing', 'fit', 'measurements', 'what size', 'too big', 'too small', 'size guide', 'cm', 'inches'],
+    reply: "Each product page has a detailed size guide. For apparel, we recommend going one size up for an oversized streetwear fit. For shoes, our sizes run true to size. Need specific help? Ask me the product name and I'll guide you."
+  },
+  // Payment
+  {
+    match: ['payment', 'card', 'pay', 'stripe', 'checkout', 'secure', 'visa', 'mastercard', 'amex', 'credit', 'debit'],
+    reply: "We accept all major credit and debit cards via Stripe — fully secure and PCI-compliant. Apple Pay and Google Pay are also supported at checkout. Your card details are never stored on our servers."
+  },
+  // Digital products
+  {
+    match: ['digital', 'ebook', 'e-book', 'capsule edit', 'download', 'pdf', 'guide', 'digital product'],
+    reply: "Our digital products (like The Capsule Edit wardrobe guide) are delivered to your email within 24 hours after purchase. Browse them at zeluxus.com/digital-assets. No shipping required — instant access!"
+  },
+  // Discounts
+  {
+    match: ['discount', 'coupon', 'promo code', 'sale', 'voucher', 'offer', 'cheaper', 'deal'],
+    reply: "We don't run discount codes — our pricing reflects real quality at fair value. Orders over $30 automatically get free shipping. Follow <instagram> for any future promotions or special drops."
+  },
+  // Cancellation
+  {
+    match: ['cancel', 'cancellation', 'cancel my order', 'stop my order'],
+    reply: "Orders go straight into processing once placed and unfortunately can't be cancelled. Please review your cart carefully before completing checkout. For urgent concerns, contact us via <support>."
+  },
+  // Contact/Support
+  {
+    match: ['contact', 'support', 'help', 'speak to', 'talk to', 'human', 'agent', 'real person', 'issue', 'problem', 'complaint'],
+    reply: "Our support team is available via <support> (real-time chat) or on <instagram>. We aim to reply within a few hours. For order-specific issues, have your ZELUX tracking number ready."
+  },
+  // Social media
+  {
+    match: ['instagram', 'ig', 'social', 'follow', 'tiktok', 'youtube', 'pinterest'],
+    reply: "Follow us on <instagram> for new arrivals, style drops, and behind-the-scenes content. We also reply to DMs! Find us on TikTok and Pinterest too."
+  },
+  // Products / recommendations
+  {
+    match: ['product', 'best seller', 'popular', 'recommend', 'what do you sell', 'collection', 'new arrival', 'featured', 'streetwear', 'sneaker', 'blazer', 'jacket'],
+    reply: "We carry premium streetwear, footwear, electronics, and digital guides — all curated for those who refuse to settle. Browse our full collection at zeluxus.com. New drops happen regularly, so check back often!"
+  },
+  // Receipt / invoice
+  {
+    match: ['receipt', 'invoice', 'order confirmation', 'proof of purchase', 'download receipt'],
+    reply: "View and download your official ZELUX receipt at <receipt>. Enter your ZELUX tracking number to access your order details, items, and total. You can save it as a PDF too."
+  },
+  // Account / login
+  {
+    match: ['password', 'login', 'account', 'forgot', 'sign in', 'register', 'create account', 'log in'],
+    reply: "Head to zeluxus.com/login to sign in or create an account. With an account you get order history, wishlist, saved addresses, and access to your receipts. For login issues, reach us via <support>."
+  },
+  // Color / variant questions  
+  {
+    match: ['color', 'colour', 'variant', 'available in', 'come in', 'options', 'styles'],
+    reply: "Each product page shows all available colors, sizes, and variants. Select your preference before adding to cart. If a variant is out of stock, it will be shown as unavailable."
+  },
+  // Price / cost
+  {
+    match: ['price', 'cost', 'expensive', 'cheap', 'affordable', 'how much', 'value'],
+    reply: "Our prices reflect premium quality without the luxury markup. We believe great style shouldn't break the bank. Browse zeluxus.com to see our full range of prices."
+  },
+  // Wishlist
+  {
+    match: ['wishlist', 'save', 'favourite', 'favorite', 'save for later'],
+    reply: "You can add any product to your wishlist by clicking the heart icon on product cards. Access your wishlist anytime from your account at zeluxus.com/wishlist."
+  },
+  // About ZELUX
+  {
+    match: ['about', 'who are you', 'zelux', 'brand', 'founded', 'story', 'what is zelux'],
+    reply: "ZELUX is a premium e-commerce brand founded in 2024, built for those who refuse to settle. We curate streetwear, footwear, electronics, and digital guides — all at fair prices. Based at zeluxus.com."
+  },
+];
   {
     match: ['return', 'refund', 'exchange', 'send back', 'give back'],
     reply: "All ZELUX sales are final — we don't accept returns or exchanges. That said, if your item arrives damaged or incorrect (our mistake), reach us on <support> or <instagram> and we'll sort it out immediately.",
@@ -271,13 +362,11 @@ export default function ChatBot() {
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(63,216,242,0.2), 0 0 30px rgba(63,216,242,0.35), 0 8px 32px rgba(0,0,0,0.4)'; }}
       >
         {open ? (
-          <svg style={{width: '18px', height: '18px', color: '#3FD8F2'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+          <svg style={{width:'14px',height:'14px',color:'#3FD8F2'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7"/>
           </svg>
         ) : (
-          <svg style={{width: '24px', height: '24px', color: '#fff'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-          </svg>
+          <span style={{fontFamily:'serif', fontSize:'26px', fontWeight:'900', color:'#fff', lineHeight:1, letterSpacing:'-1px'}}>Z</span>
         )}
       </button>
     </>
