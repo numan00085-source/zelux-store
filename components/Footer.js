@@ -62,6 +62,7 @@ export default function Footer() {
             <a href={`https://instagram.com/${s.socialUsernames.instagram.trim()}`} target="_blank" rel="noreferrer" className="text-zelux-cyan text-sm hover:text-zelux-cyan-light transition-colors duration-300">@{s.socialUsernames.instagram.trim()} &rarr;</a>
           )}
           <Link href="/support" className="inline-block mt-2 text-zelux-gray text-sm hover:text-zelux-cyan transition-colors duration-300">Support Chat &rarr;</Link>
+          <Link href="/receipt" className="inline-block mt-2 text-zelux-gray text-sm hover:text-zelux-cyan transition-colors duration-300">ZELUX Receipt &rarr;</Link>
         </div>
       </div>
       <div className="border-t border-zelux-gray-mid/30 py-6 text-center">
