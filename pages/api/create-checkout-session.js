@@ -148,23 +148,14 @@ export default async function handler(req, res) {
       metadata: {
         customerName: form.name,
         customerEmail: form.email,
-        // Real bug fixed here: form.country is a code like "BD" (validated
-        // as required on checkout), but it was never actually included in
-        // this address string before - country was silently dropped between
-        // the checkout form and the saved order record, even though the
-        // customer was required to select one. Resolving the code to its
-        // full name here so the address that reaches the admin panel
-        // actually reflects what the customer selected, not Stripe's own
-        // (now-removed) shipping address collection.
-        // For an all-digital order, the customer may not have entered an
-        // address at all (no longer required - see checkout.js). Building
-        // the usual ", , , " string from empty fields would look like a
-        // broken/missing address in the admin panel rather than a
-        // deliberate "not needed" state, so this is explicit instead.
+        customerPhone: form.phone || '',
         shippingAddress: isDigitalOrder && !form.address
           ? 'Not applicable - digital order, delivered via email'
           : `${form.address}, ${form.city}, ${form.state} ${form.zip}, ${SHIPPING_COUNTRIES.find(c => c.code === form.country)?.name || form.country}`,
         countryCode: form.country || '',
+        city: form.city || '',
+        state: form.state || '',
+        zip: form.zip || '',
         itemsSummary,
         isDigitalOrder: isDigitalOrder ? 'true' : 'false',
         digitalFileLinks,

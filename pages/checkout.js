@@ -17,7 +17,7 @@ export default function Checkout() {
   // since at least one item genuinely needs to ship.
   const isAllDigitalCart = cart.length > 0 && cart.every(item => item.isDigital);
   const [hydrated, setHydrated] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', address: '', city: '', state: '', zip: '', country: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', city: '', state: '', zip: '', country: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingConfig, setShippingConfig] = useState({ freeShippingThreshold: 150, shippingFee: 9.99 });
@@ -67,6 +67,7 @@ export default function Checkout() {
     if (!isAllDigitalCart) {
       if (!form.address) { setError('Please fill in all required fields.'); return; }
       if (!form.country) { setError('Please select a shipping country.'); return; }
+      if (!form.phone) { setError('Please enter your phone number.'); return; }
     }
     setLoading(true); setError('');
     try {
@@ -141,15 +142,17 @@ export default function Checkout() {
                 </div>
               ))}
               {!isAllDigitalCart && [
+                { name: 'phone', label: 'Phone Number *', type: 'tel', placeholder: '+1 (555) 000-0000' },
                 { name: 'address', label: 'Street Address *', type: 'text' },
                 { name: 'city', label: 'City *', type: 'text' },
-                { name: 'state', label: 'State', type: 'text' },
-                { name: 'zip', label: 'ZIP Code *', type: 'text' },
+                { name: 'state', label: 'State / Province', type: 'text' },
+                { name: 'zip', label: 'ZIP / Postal Code *', type: 'text' },
               ].map(f => (
                 <div key={f.name}>
                   <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">{f.label}</label>
                   <input name={f.name} type={f.type} value={form[f.name]} onChange={handleChange}
-                    className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300" />
+                    placeholder={f.placeholder || ''} autoComplete={f.name === 'phone' ? 'tel' : undefined}
+                    className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300 placeholder-zelux-gray/40" />
                 </div>
               ))}
               {!isAllDigitalCart && (

@@ -64,6 +64,10 @@ export default async function handler(req, res) {
         customerEmail: session.metadata?.customerEmail || session.customer_details?.email || '',
         address: session.metadata?.shippingAddress || '',
         countryCode: session.metadata?.countryCode || '',
+        city: session.metadata?.city || '',
+        state: session.metadata?.state || '',
+        zip: session.metadata?.zip || '',
+        customerPhone: session.metadata?.customerPhone || '',
         // Digital Assets: isDigitalOrder flags this order as needing manual
         // delivery (no automatic email per explicit decision - see
         // digitalFileLinks below) rather than physical shipping. The admin
