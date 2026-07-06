@@ -62,7 +62,11 @@ export default function Footer() {
           {s.socialUsernames?.instagram?.trim() && (
             <a href={`https://instagram.com/${s.socialUsernames.instagram.trim()}`} target="_blank" rel="noreferrer" className="text-zelux-cyan text-sm hover:text-zelux-cyan-light transition-colors duration-300">@{s.socialUsernames.instagram.trim()} &rarr;</a>
           )}
-          <Link href="/support" className="inline-block mt-2 text-zelux-gray text-sm hover:text-zelux-cyan transition-colors duration-300">Support Chat &rarr;</Link>
+        </div>
+        <div>
+          <h4 className="text-xs tracking-widest uppercase text-zelux-gray mb-4">Chat</h4>
+          <p className="text-sm text-zelux-gray leading-relaxed mb-3">Get instant help from our support team.</p>
+          <Link href="/support" className="inline-block text-zelux-cyan text-sm hover:text-zelux-cyan-light transition-colors duration-300">Support Chat &rarr;</Link>
         </div>
       </div>
       <div className="border-t border-zelux-gray-mid/30 py-6 text-center">

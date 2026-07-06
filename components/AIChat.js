@@ -209,23 +209,29 @@ export default function ChatBot() {
         </div>
       )}
 
-      {/* Premium bubble with ZELUX Z mark */}
-      <button onClick={open ? () => setOpen(false) : handleOpen}
-        className="fixed bottom-5 right-5 z-50 flex items-center justify-center transition-all duration-300 hover:scale-105"
-        style={{width:'56px', height:'56px', borderRadius:'50%',
-          background: open ? '#060B16' : 'linear-gradient(135deg,#3FD8F2 0%,#0891B2 100%)',
-          border: open ? '1.5px solid rgba(63,216,242,0.4)' : 'none',
-          boxShadow:'0 0 0 1px rgba(63,216,242,0.2), 0 0 28px rgba(63,216,242,0.4), 0 8px 32px rgba(0,0,0,0.4)'}}>
-        {open ? (
-          <svg width="16" height="16" fill="none" stroke="rgba(63,216,242,1)" strokeWidth="2.5" strokeLinecap="round" viewBox="0 0 24 24">
-            <path d="M19 9l-7 7-7-7"/>
-          </svg>
-        ) : (
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 5H21L5 21H21" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+      {/* Premium AI bubble with pulse animation */}
+      <div className="fixed bottom-5 right-5 z-50">
+        {!open && (
+          <>
+            <span className="absolute inset-0 rounded-full animate-ping" style={{background:'rgba(63,216,242,0.25)'}}></span>
+            <span className="absolute inset-0 rounded-full" style={{background:'rgba(63,216,242,0.1)', animation:'ping 2s cubic-bezier(0,0,0.2,1) infinite', animationDelay:'0.5s'}}></span>
+          </>
         )}
-      </button>
+        <button onClick={open ? () => setOpen(false) : handleOpen}
+          className="relative flex items-center justify-center transition-all duration-300 hover:scale-105"
+          style={{width:'56px', height:'56px', borderRadius:'50%',
+            background: open ? '#060B16' : 'linear-gradient(135deg,#3FD8F2 0%,#0891B2 100%)',
+            border: open ? '1.5px solid rgba(63,216,242,0.4)' : 'none',
+            boxShadow: open ? '0 0 0 1px rgba(63,216,242,0.2)' : '0 0 0 1px rgba(63,216,242,0.3), 0 0 32px rgba(63,216,242,0.5), 0 8px 32px rgba(0,0,0,0.5)'}}>
+          {open ? (
+            <svg width="16" height="16" fill="none" stroke="rgba(63,216,242,1)" strokeWidth="2.5" strokeLinecap="round" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7"/>
+            </svg>
+          ) : (
+            <span style={{fontFamily:'system-ui,sans-serif', fontSize:'15px', fontWeight:'800', color:'#fff', letterSpacing:'-0.5px', lineHeight:1}}>AI</span>
+          )}
+        </button>
+      </div>
     </>
   );
 }
