@@ -210,47 +210,32 @@ export default function ChatBot() {
       )}
 
       {/* Premium bubble */}
-      <div style={{position:'fixed', bottom:'20px', right:'20px', zIndex:50}}>
+      <div style={{position:'fixed',bottom:'20px',right:'20px',zIndex:50}}>
         {!open && (
           <>
-            <span style={{position:'absolute', inset:'-6px', borderRadius:'50%', border:'1.5px solid rgba(63,216,242,0.4)', animation:'zeluxPing1 2.5s ease-out infinite'}}></span>
-            <span style={{position:'absolute', inset:'-12px', borderRadius:'50%', border:'1px solid rgba(63,216,242,0.2)', animation:'zeluxPing1 2.5s ease-out infinite', animationDelay:'0.6s'}}></span>
+            <span style={{position:'absolute',inset:'-6px',borderRadius:'50%',border:'1.5px solid rgba(63,216,242,0.4)',animation:'zPing 2.5s ease-out infinite'}}></span>
+            <span style={{position:'absolute',inset:'-12px',borderRadius:'50%',border:'1px solid rgba(63,216,242,0.2)',animation:'zPing 2.5s ease-out infinite',animationDelay:'0.7s'}}></span>
           </>
         )}
         <button onClick={open ? () => setOpen(false) : handleOpen}
-          style={{
-            position:'relative', width:'56px', height:'56px', borderRadius:'50%',
-            background: open
-              ? 'rgba(6,11,22,0.95)'
-              : 'conic-gradient(from 180deg, #3FD8F2, #0891B2, #06B6D4, #3FD8F2)',
-            border: open ? '1.5px solid rgba(63,216,242,0.35)' : 'none',
-            boxShadow: open
-              ? 'none'
-              : '0 0 0 1px rgba(63,216,242,0.25), 0 0 40px rgba(63,216,242,0.55), 0 0 80px rgba(63,216,242,0.15), 0 12px 40px rgba(0,0,0,0.6)',
-            cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-            transition:'all 0.3s',
-            animation: open ? 'none' : 'zeluxRotate 6s linear infinite',
-          }}>
+          style={{position:'relative',width:'56px',height:'56px',borderRadius:'50%',
+            background:open?'rgba(6,11,22,0.95)':'conic-gradient(from 0deg,#3FD8F2,#0891B2,#06B6D4,#67E8F9,#3FD8F2)',
+            border:open?'1.5px solid rgba(63,216,242,0.35)':'none',
+            boxShadow:open?'none':'0 0 0 1px rgba(63,216,242,0.2),0 0 40px rgba(63,216,242,0.6),0 12px 40px rgba(0,0,0,0.6)',
+            cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+            transition:'all 0.3s',animation:open?'none':'zSpin 5s linear infinite'}}>
           {open ? (
             <svg width="16" height="16" fill="none" stroke="rgba(63,216,242,0.9)" strokeWidth="2.5" strokeLinecap="round" viewBox="0 0 24 24">
               <path d="M19 9l-7 7-7-7"/>
             </svg>
           ) : (
-            <div style={{
-              position:'absolute', inset:'3px', borderRadius:'50%',
-              background:'linear-gradient(135deg,#0A1628,#060B16)',
-              display:'flex', alignItems:'center', justifyContent:'center',
-              flexDirection:'column', gap:'1px',
-            }}>
-              <span style={{fontSize:'11px', fontWeight:'800', color:'#3FD8F2', letterSpacing:'1.5px', lineHeight:1, fontFamily:'system-ui,sans-serif'}}>AI</span>
-              <span style={{fontSize:'7px', fontWeight:'600', color:'rgba(63,216,242,0.6)', letterSpacing:'2px', lineHeight:1, fontFamily:'system-ui,sans-serif'}}>ZELUX</span>
+            <div style={{position:'absolute',inset:'3px',borderRadius:'50%',background:'linear-gradient(145deg,#0A1628,#060B16)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'1px'}}>
+              <span style={{fontSize:'12px',fontWeight:'800',color:'#3FD8F2',letterSpacing:'1px',lineHeight:1,fontFamily:'system-ui,sans-serif'}}>AI</span>
+              <span style={{fontSize:'6.5px',fontWeight:'700',color:'rgba(63,216,242,0.55)',letterSpacing:'2.5px',lineHeight:1,fontFamily:'system-ui,sans-serif'}}>ZELUX</span>
             </div>
           )}
         </button>
-        <style>{`
-          @keyframes zeluxRotate { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
-          @keyframes zeluxPing1 { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
-        `}</style>
+        <style>{`@keyframes zSpin{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}@keyframes zPing{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.6);opacity:0}}`}</style>
       </div>
     </>
   );
