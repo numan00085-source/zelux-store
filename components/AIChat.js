@@ -22,8 +22,6 @@ const RULES = [
   { match: ['photo','image','picture','look like','can i see'], reply: "All product photos are available on each product page at zeluxus.com. We show multiple angles so you can see exactly what you're getting before you buy." },
 ];
 
-const FALLBACK
-
 const FALLBACK = "I'm not sure about that one — for anything specific, our team will know. Reach us via <support> or DM <instagram>.";
 const WELCOME = "Hi! I'm the ZELUX assistant. Ask me about sizing, shipping, orders, returns, or anything about our store.";
 const QUICK = ['Track my order', 'Shipping info', 'Return policy', 'Sizing help', 'Contact support'];
