@@ -16,11 +16,12 @@ async function fetchProducts() {
 function buildProductContext(products) {
   if (!products || !products.length) return '';
   return products.map(p => {
-    const sizes = p.sizes && p.sizes.length ? ' | Sizes: ' + p.sizes.join(', ') : '';
-    const colors = p.colors && p.colors.length ? ' | Colors: ' + p.colors.join(', ') : '';
+    const sizes = p.sizes?.length ? ` | Sizes: ${p.sizes.join(', ')}` : '';
+    const colors = p.colors?.length ? ` | Colors: ${p.colors.join(', ')}` : '';
     const type = p.isDigital ? ' [Digital]' : '';
-    return '• ' + p.name + type + ' — $' + p.price + sizes + colors;
-  }).join(' | ');
+    return `• ${p.name}${type} — $${p.price}${sizes}${colors}`;
+  }).join('
+');
 }
 
 const RULES = [
@@ -275,7 +276,9 @@ export default function ChatBot() {
         {open ? (
           <svg style={{width:'14px',height:'14px',color:'#3FD8F2'}} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7"/></svg>
         ) : (
-          <span style={{fontFamily:'Georgia,serif',fontSize:'28px',fontWeight:'900',color:'#fff',lineHeight:1}}>Z</span>
+          <svg viewBox="0 0 28 28" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 5H23L5 23H23" stroke="white" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter"/>
+          </svg>
         )}
       </button>
     </>
