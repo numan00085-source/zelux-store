@@ -50,9 +50,10 @@ export default function Footer() {
         <div>
           <h4 className="text-xs tracking-widest uppercase text-zelux-gray mb-4">Account</h4>
           <ul className="space-y-3">
-            {['My Profile','My Orders','Wishlist','Track Order'].map(l => (
-              <li key={l}><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">{l}</Link></li>
-            ))}
+            <li><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Profile</Link></li>
+            <li><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Orders</Link></li>
+            <li><Link href="/wishlist" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">Wishlist</Link></li>
+            <li><Link href="/receipt" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">ZELUX Receipt</Link></li>
           </ul>
         </div>
         <div>
@@ -62,7 +63,6 @@ export default function Footer() {
             <a href={`https://instagram.com/${s.socialUsernames.instagram.trim()}`} target="_blank" rel="noreferrer" className="text-zelux-cyan text-sm hover:text-zelux-cyan-light transition-colors duration-300">@{s.socialUsernames.instagram.trim()} &rarr;</a>
           )}
           <Link href="/support" className="inline-block mt-2 text-zelux-gray text-sm hover:text-zelux-cyan transition-colors duration-300">Support Chat &rarr;</Link>
-          <Link href="/receipt" className="inline-block mt-2 text-zelux-gray text-sm hover:text-zelux-cyan transition-colors duration-300">ZELUX Receipt &rarr;</Link>
         </div>
       </div>
       <div className="border-t border-zelux-gray-mid/30 py-6 text-center">

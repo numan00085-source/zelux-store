@@ -170,22 +170,109 @@ export default function ReceiptPage() {
   };
 
   const downloadPDF = () => {
-    if (!order) return;
-    // Load html2pdf from CDN dynamically - avoids adding it as a build dependency
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    script.onload = () => {
-      const el = receiptRef.current;
-      window.html2pdf().set({
-        margin: 0,
-        filename: `ZELUX-Receipt-${order.trackingNumber}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#060B16' },
-        jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' },
-      }).from(el).save();
-    };
-    script.onerror = () => window.print();
-    document.head.appendChild(script);
+    if (!order || !receiptRef.current) return;
+    // Use a new window with light theme for reliable PDF printing across all devices.
+    // Dark backgrounds don't render reliably in browser print dialogs, so we
+    // inject the receipt HTML into a white-themed print window instead.
+    const el = receiptRef.current;
+    const items = order.itemsSummary
+      ? order.itemsSummary.split(';;').map(s => s.trim()).filter(Boolean)
+      : [order.productName];
+    const date = new Date(order.createdAt);
+    const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const edd = new Date(date);
+    edd.setDate(edd.getDate() + 12);
+    const eddStr = edd.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ZELUX Receipt - ${order.trackingNumber}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #111; padding: 32px; max-width: 480px; margin: 0 auto; }
+    .header { text-align: center; padding: 24px 0 20px; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; }
+    .brand { font-size: 28px; font-weight: 700; letter-spacing: 6px; color: #0a1628; }
+    .brand-sub { font-size: 11px; color: #999; letter-spacing: 3px; margin-top: 4px; }
+    .section { margin-bottom: 18px; }
+    .label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #999; margin-bottom: 5px; }
+    .value { font-size: 13px; color: #111; line-height: 1.5; }
+    .tracking { font-family: monospace; font-size: 15px; font-weight: 600; color: #0a3d6b; letter-spacing: 2px; }
+    .status { display: inline-block; padding: 3px 12px; border-radius: 20px; background: #e8f4fd; color: #0a3d6b; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .divider { border: none; border-top: 1px dashed #ddd; margin: 18px 0; }
+    .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 2px solid #111; }
+    .total-label { font-size: 13px; color: #666; }
+    .total-amount { font-size: 22px; font-weight: 700; color: #0a1628; }
+    .item { display: flex; gap: 8px; margin-bottom: 8px; }
+    .item-dot { width: 6px; height: 6px; border-radius: 50%; background: #0a3d6b; margin-top: 5px; flex-shrink: 0; }
+    .item-name { font-size: 13px; color: #111; }
+    .item-detail { font-size: 11px; color: #777; margin-top: 2px; }
+    .footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid #eee; }
+    .footer p { font-size: 10px; color: #999; line-height: 1.8; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="brand">ZELUX</div>
+  <div class="brand-sub">ZELUXUS.COM</div>
+</div>
+
+<div class="section">
+  <div class="label">Order Status</div>
+  <span class="status">${order.status}</span>
+</div>
+
+<div class="section">
+  <div class="label">Tracking Number</div>
+  <div class="tracking">${order.trackingNumber}</div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="label">Items Ordered</div>
+  ${items.map(item => {
+    const [name, ...rest] = item.split('|');
+    const detail = rest.join('|').trim();
+    return `<div class="item"><div class="item-dot"></div><div><div class="item-name">${name.trim()}</div>${detail ? `<div class="item-detail">${detail}</div>` : ''}</div></div>`;
+  }).join('')}
+</div>
+
+<hr class="divider">
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+  <div class="section" style="margin:0">
+    <div class="label">Order Date</div>
+    <div class="value">${dateStr}</div>
+  </div>
+  <div class="section" style="margin:0">
+    <div class="label">Est. Delivery</div>
+    <div class="value">${eddStr}</div>
+  </div>
+</div>
+
+${order.address && !order.isDigitalOrder ? `<div class="section"><div class="label">Ship To</div><div class="value">${order.address}</div></div>` : ''}
+
+<div class="section">
+  <div class="label">Email</div>
+  <div class="value">${order.customerEmail}</div>
+</div>
+
+<div class="total-row">
+  <span class="total-label">Order Total</span>
+  <span class="total-amount">$${Number(order.total).toFixed(2)}</span>
+</div>
+
+<div class="footer">
+  <p>Thank you for shopping with ZELUX.<br>For support, reach us on Instagram @zelux.us<br>This is your official order receipt.</p>
+</div>
+</body>
+</html>`);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 500);
   };
 
   if (!user) {
