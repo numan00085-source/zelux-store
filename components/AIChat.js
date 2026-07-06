@@ -1,5 +1,29 @@
 import { useState, useEffect, useRef } from 'react';
 
+// Chatbot fetches live product data when first opened so it always knows
+// the current catalog — no code changes needed when new products are added.
+let cachedProducts = null;
+async function fetchProducts() {
+  if (cachedProducts) return cachedProducts;
+  try {
+    const res = await fetch('/api/products-list');
+    const data = await res.json();
+    cachedProducts = data.filter(p => p.inStock !== false);
+    return cachedProducts;
+  } catch { return []; }
+}
+
+function buildProductContext(products) {
+  if (!products || !products.length) return '';
+  return products.map(p => {
+    const sizes = p.sizes?.length ? ` | Sizes: ${p.sizes.join(', ')}` : '';
+    const colors = p.colors?.length ? ` | Colors: ${p.colors.join(', ')}` : '';
+    const type = p.isDigital ? ' [Digital]' : '';
+    return `• ${p.name}${type} — $${p.price}${sizes}${colors}`;
+  }).join('
+');
+}
+
 const RULES = [
   { match: ['hello','hi','hey','hii','helo','sup','yo','good morning','good evening','good afternoon','whats up',"what's up"], reply: "Hey! Welcome to ZELUX 👋 I can help with sizing, orders, shipping, products, returns, and more. What do you need?" },
   { match: ['return','refund','exchange','send back','give back','money back'], reply: "All ZELUX sales are final — we don't accept returns or exchanges. If your item arrives damaged or incorrect (our error), contact us via <support> or <instagram> and we'll fix it immediately." },
@@ -41,10 +65,22 @@ function ReplyText({ text }) {
   );
 }
 
-function getReply(text) {
+function getReply(text, products) {
   const lower = text.toLowerCase();
   for (const rule of RULES) {
-    if (rule.match.some(kw => lower.includes(kw))) return rule.reply;
+    if (rule.match.some(kw => lower.includes(kw))) {
+      if (rule.reply === '__PRODUCTS__') {
+        const ctx = buildProductContext(products);
+        return ctx
+          ? `Here's what we currently carry at ZELUX:
+
+${ctx}
+
+Browse and buy at zeluxus.com!`
+          : "We carry premium streetwear, footwear, electronics, and digital guides. Browse our full collection at zeluxus.com!";
+      }
+      return rule.reply;
+    }
   }
   return FALLBACK;
 }
@@ -58,11 +94,15 @@ export default function ChatBot() {
   const inputRef = useRef(null);
 
   // Reset chat each time bubble is opened — fresh session every time
+  const [products, setProducts] = useState([]);
+
   const handleOpen = () => {
     setMessages([{ from: 'bot', text: WELCOME }]);
     setInput('');
     setTyping(false);
     setOpen(true);
+    // Fetch live products in background when chat opens
+    fetchProducts().then(data => setProducts(data || []));
   };
 
   useEffect(() => {
@@ -81,7 +121,7 @@ export default function ChatBot() {
     setTyping(true);
     setTimeout(() => {
       setTyping(false);
-      setMessages(prev => [...prev, { from: 'bot', text: getReply(msg) }]);
+      setMessages(prev => [...prev, { from: 'bot', text: getReply(msg, products) }]);
     }, 700 + Math.random() * 300);
   };
 
