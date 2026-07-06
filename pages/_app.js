@@ -3,6 +3,7 @@ import Script from 'next/script';
 import '../styles/globals.css';
 import AdSlot from '../components/AdSlot';
 import IntroAnimation from '../components/IntroAnimation';
+import AIChat from '../components/AIChat';
 
 function MaintenanceScreen({ message }) {
   return (
@@ -85,6 +86,7 @@ export default function App({ Component, pageProps }) {
       {!introDone && <IntroAnimation onComplete={() => setIntroDone(true)} />}
       <Component {...pageProps} />
       <AdSlot placement="homepage-social-bar" />
+      <AIChat />
     </>
   );
 }
