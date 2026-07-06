@@ -169,21 +169,23 @@ export default function ReceiptPage() {
     setLoading(false);
   };
 
-  const downloadPDF = async () => {
+  const downloadPDF = () => {
     if (!order) return;
-    try {
-      const html2pdf = (await import('html2pdf.js')).default;
+    // Load html2pdf from CDN dynamically - avoids adding it as a build dependency
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    script.onload = () => {
       const el = receiptRef.current;
-      await html2pdf().set({
+      window.html2pdf().set({
         margin: 0,
         filename: `ZELUX-Receipt-${order.trackingNumber}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#060B16' },
         jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' },
       }).from(el).save();
-    } catch {
-      window.print();
-    }
+    };
+    script.onerror = () => window.print();
+    document.head.appendChild(script);
   };
 
   if (!user) {
