@@ -254,19 +254,66 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-          {/* Tabs */}
-          <div className="flex gap-2 mb-10 overflow-x-auto">
+        {/* Mobile tab bar */}
+        <div className="sm:hidden border-b border-zelux-gray-mid/30 bg-zelux-navy-light overflow-x-auto">
+          <div className="flex">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 text-xs tracking-widest uppercase rounded-full whitespace-nowrap transition-all duration-300 ${tab === t.id ? 'bg-zelux-cyan text-zelux-navy shadow-glow-sm font-semibold' : 'text-zelux-gray border border-zelux-gray-mid/40 hover:border-zelux-cyan/40 hover:text-zelux-cyan'}`}>
+                className={`flex-shrink-0 px-4 py-3 text-[11px] tracking-widest uppercase border-b-2 transition-all ${tab === t.id ? 'border-zelux-cyan text-zelux-cyan' : 'border-transparent text-zelux-gray'}`}>
                 {t.label}
-                {t.count !== undefined && t.count > 0 && (
-                  <span className={`text-[10px] rounded-full w-4 h-4 flex items-center justify-center ${tab === t.id ? 'bg-zelux-navy text-zelux-cyan' : 'bg-zelux-gray-light text-zelux-gray'}`}>{t.count}</span>
-                )}
+                {t.count > 0 && <span className="ml-1 text-[10px]">({t.count})</span>}
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex gap-6">
+
+            {/* Left sidebar — desktop only */}
+            <aside className="hidden sm:flex flex-col gap-1 w-52 flex-shrink-0">
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl overflow-hidden">
+                {tabs.map((t, i) => (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    className={`w-full flex items-center justify-between px-5 py-3.5 text-sm transition-all ${i > 0 ? 'border-t border-zelux-gray-mid/20' : ''} ${tab === t.id ? 'bg-zelux-cyan/10 text-zelux-cyan' : 'text-zelux-gray hover:text-zelux-white hover:bg-zelux-navy-light'}`}>
+                    <span className="text-left">{t.label}</span>
+                    <div className="flex items-center gap-2">
+                      {t.count > 0 && <span className="text-[11px] bg-zelux-cyan/20 text-zelux-cyan px-1.5 py-0.5 rounded-full">{t.count}</span>}
+                      <svg className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${tab === t.id ? 'text-zelux-cyan' : 'text-zelux-gray/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                  </button>
+                ))}
+                <div className="border-t border-zelux-gray-mid/20">
+                  <button onClick={() => { logout(); router.push('/'); }}
+                    className="w-full flex items-center justify-between px-5 py-3.5 text-sm text-zelux-gray hover:text-red-400 hover:bg-zelux-navy-light transition-all">
+                    <span>Sign Out</span>
+                    <svg className="w-3.5 h-3.5 text-zelux-gray/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick info card */}
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-4 mt-2">
+                <p className="text-[10px] text-zelux-gray uppercase tracking-widest mb-2">Quick Links</p>
+                <div className="space-y-2">
+                  <a href="/receipt" className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    ZELUX Receipt
+                  </a>
+                  <a href="/support" className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    Support Chat
+                  </a>
+                  <a href="/faq" className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    FAQ
+                  </a>
+                </div>
+              </div>
+            </aside>
+
+            {/* Main content */}
+            <div className="flex-1 min-w-0">
 
           {/* ORDERS */}
           {tab === 'orders' && (
@@ -511,6 +558,8 @@ export default function Profile() {
             </div>
           )}
 
+            </div>{/* end main content */}
+          </div>{/* end flex */}
         </div>
       </main>
       <Footer />
