@@ -51,6 +51,7 @@ export default function Footer() {
           <h4 className="text-xs tracking-widest uppercase text-zelux-gray mb-4">Account</h4>
           <ul className="space-y-3">
             <li><Link href="/about" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">About ZELUX</Link></li>
+            <li><Link href="/faq" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">FAQ</Link></li>
             <li><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Profile</Link></li>
             <li><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Orders</Link></li>
             <li><Link href="/wishlist" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">Wishlist</Link></li>
