@@ -1,9 +1,14 @@
+import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function ReturnsPolicy() {
   return (
     <>
+      <Head>
+        <title>Returns Policy — ZELUX</title>
+        <meta name="robots" content="noindex, follow" />
+      </Head>
       <Navbar />
       <main className="pt-16 min-h-screen bg-zelux-navy">
         <div className="bg-zelux-navy-light border-b border-zelux-gray-mid/30 py-16 text-center relative overflow-hidden">
