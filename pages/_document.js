@@ -56,6 +56,11 @@ export default function Document() {
               "gtag('config','G-PE22VJ7SRB');"
           }}
         />
+        <script
+          id="org-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{__html: `{"@context":"https://schema.org","@type":"Organization","name":"ZELUX","url":"https://www.zeluxus.com","logo":"https://www.zeluxus.com/android-chrome-512x512.png","description":"ZELUX is a premium e-commerce brand for curated streetwear, footwear, electronics, and digital guides. Worldwide shipping.","foundingDate":"2024","founder":{"@type":"Person","name":"Numan Salclox"},"sameAs":["https://www.instagram.com/zelux.us","https://www.tiktok.com/@zelux.us","https://www.pinterest.com/zeluxus","https://www.zeluxus.com"]}`}}
+        />
       </Head>
       <body>
         <Main />
