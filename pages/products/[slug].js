@@ -17,6 +17,7 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [lightbox, setLightbox] = useState(false);
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
 
@@ -85,8 +86,8 @@ export default function ProductPage() {
             {/* Image section */}
             <div className="animate-fade-in">
               {/* Mobile swiper */}
-              <div className="relative overflow-hidden rounded-2xl bg-zelux-navy-card border border-zelux-gray-mid/30 aspect-square cursor-pointer"
-                onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+              <div className="relative overflow-hidden rounded-2xl bg-zelux-navy-card border border-zelux-gray-mid/30 aspect-square cursor-zoom-in"
+                onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onClick={() => setLightbox(true)}>
                 <img src={imgs[imgIdx]} alt={product.name}
                   className="w-full h-full object-cover transition-all duration-400"
                   style={{transform: 'translateZ(0)'}} />
@@ -289,6 +290,38 @@ export default function ProductPage() {
         </div>
       )}
       <Footer />
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div className="fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4 animate-fade-in" onClick={() => setLightbox(false)}>
+          <button onClick={() => setLightbox(false)} className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+          {imgs.length > 1 && (
+            <>
+              <button onClick={e => { e.stopPropagation(); setImgIdx(i => Math.max(i-1,0)); }}
+                className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <button onClick={e => { e.stopPropagation(); setImgIdx(i => Math.min(i+1,imgs.length-1)); }}
+                className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </>
+          )}
+          <img src={imgs[imgIdx]} alt={product.name}
+            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl animate-scale-in"
+            onClick={e => e.stopPropagation()} />
+          {imgs.length > 1 && (
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
+              {imgs.map((_,i) => (
+                <button key={i} onClick={e => { e.stopPropagation(); setImgIdx(i); }}
+                  className={`rounded-full transition-all ${imgIdx===i ? 'w-6 h-2 bg-zelux-cyan' : 'w-2 h-2 bg-white/40'}`}></button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
