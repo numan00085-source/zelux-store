@@ -51,7 +51,7 @@ export default function Profile() {
   const wishlist = useWishlistStore(s => s.wishlist);
   const toggle = useWishlistStore(s => s.toggle);
   const router = useRouter();
-  const [tab, setTab] = useState('orders');
+  const [tab, setTab] = useState('menu');
 
   // Support ?tab=support URL
   useEffect(() => {
@@ -234,89 +234,120 @@ export default function Profile() {
       <Navbar />
       <main className="pt-16 min-h-screen bg-zelux-navy">
 
-        {/* Profile Hero Banner */}
-        <div className="relative bg-zelux-navy-light border-b border-zelux-gray-mid/30 overflow-hidden">
-          <div className="absolute top-0 right-0 w-72 h-72 bg-zelux-cyan/5 rounded-full blur-3xl"></div>
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 relative">
-            <div className="flex items-center gap-5 animate-fade-in-up">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zelux-cyan to-zelux-cyan-dark flex items-center justify-center text-zelux-navy font-display text-2xl font-semibold shadow-glow">
+        {/* TOP HERO — avatar + stats */}
+        <div className="bg-zelux-navy-light border-b border-zelux-gray-mid/20">
+          <div className="max-w-2xl mx-auto px-4 py-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zelux-cyan to-zelux-cyan-dark flex items-center justify-center text-zelux-navy font-display text-2xl font-bold shadow-glow flex-shrink-0">
                 {initials}
               </div>
-              <div className="flex-1">
-                <p className="text-xs tracking-widest uppercase text-zelux-cyan mb-1">Welcome back</p>
-                <h1 className="font-display text-3xl sm:text-4xl font-light text-zelux-white">{user.name}</h1>
-                <p className="text-xs text-zelux-gray mt-1">{user.email}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-semibold text-zelux-white truncate">{user.name || user.email}</p>
+                <p className="text-xs text-zelux-gray truncate">{user.email}</p>
               </div>
-              <button onClick={() => { logout(); router.push('/'); }} className="hidden sm:block text-xs tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors border border-zelux-gray-mid/50 hover:border-zelux-cyan/50 px-5 py-2.5 rounded-full">
-                Sign Out
-              </button>
+            </div>
+            {/* Stats row */}
+            <div className="flex mt-5 border-t border-zelux-gray-mid/20 pt-4">
+              {[
+                { label: 'Orders', value: myOrders.length, id: 'orders' },
+                { label: 'Wishlist', value: wishlist.length, id: 'wishlist' },
+                { label: 'Addresses', value: addresses.length, id: 'addresses' },
+              ].map(s => (
+                <button key={s.id} onClick={() => setTab(s.id)} className="flex-1 text-center group">
+                  <p className="text-xl font-semibold text-zelux-white group-hover:text-zelux-cyan transition-colors">{s.value}</p>
+                  <p className="text-[11px] text-zelux-gray mt-0.5">{s.label}</p>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Mobile tab bar */}
-        <div className="sm:hidden border-b border-zelux-gray-mid/30 bg-zelux-navy-light overflow-x-auto">
-          <div className="flex">
-            {tabs.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex-shrink-0 px-4 py-3 text-[11px] tracking-widest uppercase border-b-2 transition-all ${tab === t.id ? 'border-zelux-cyan text-zelux-cyan' : 'border-transparent text-zelux-gray'}`}>
-                {t.label}
-                {t.count > 0 && <span className="ml-1 text-[10px]">({t.count})</span>}
-              </button>
-            ))}
+        {/* ORDER STATUS QUICK ROW */}
+        <div className="bg-zelux-navy-card border-b border-zelux-gray-mid/20">
+          <div className="max-w-2xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-medium text-zelux-white">My Orders</p>
+              <button onClick={() => setTab('orders')} className="text-xs text-zelux-cyan">View All →</button>
+            </div>
+            <div className="flex gap-2">
+              {[
+                { label: 'Processing', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+                { label: 'Shipped', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+                { label: 'Delivered', icon: 'M5 13l4 4L19 7' },
+                { label: 'Review', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z' },
+              ].map(s => {
+                const count = myOrders.filter(o => o.status === s.label).length;
+                return (
+                  <button key={s.label} onClick={() => setTab('orders')}
+                    className="flex-1 flex flex-col items-center gap-2 py-3 rounded-xl bg-zelux-navy hover:bg-zelux-cyan/5 transition-all relative">
+                    {count > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-zelux-cyan text-zelux-navy text-[9px] font-bold flex items-center justify-center">{count}</span>}
+                    <svg className="w-5 h-5 text-zelux-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={s.icon}/></svg>
+                    <span className="text-[10px] text-zelux-gray">{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex gap-6">
-
-            {/* Left sidebar — desktop only */}
-            <aside className="hidden sm:flex flex-col gap-1 w-52 flex-shrink-0">
-              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl overflow-hidden">
-                {tabs.map((t, i) => (
-                  <button key={t.id} onClick={() => setTab(t.id)}
-                    className={`w-full flex items-center justify-between px-5 py-3.5 text-sm transition-all ${i > 0 ? 'border-t border-zelux-gray-mid/20' : ''} ${tab === t.id ? 'bg-zelux-cyan/10 text-zelux-cyan' : 'text-zelux-gray hover:text-zelux-white hover:bg-zelux-navy-light'}`}>
-                    <span className="text-left">{t.label}</span>
-                    <div className="flex items-center gap-2">
-                      {t.count > 0 && <span className="text-[11px] bg-zelux-cyan/20 text-zelux-cyan px-1.5 py-0.5 rounded-full">{t.count}</span>}
-                      <svg className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${tab === t.id ? 'text-zelux-cyan' : 'text-zelux-gray/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+        {/* MENU LIST — Shein style line by line */}
+        {tab === 'orders' || tab === 'wishlist' || tab === 'addresses' || tab === 'support' ? null : null}
+        <div className="max-w-2xl mx-auto px-4 py-2">
+          {/* Tab content switcher — hidden, controlled by menu */}
+          {tab === 'menu' && (
+            <div className="divide-y divide-zelux-gray-mid/20">
+              {[
+                { label: 'My Orders', sub: `${myOrders.length} orders`, icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', id: 'orders' },
+                { label: 'Wishlist', sub: `${wishlist.length} saved items`, icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', id: 'wishlist' },
+                { label: 'Saved Addresses', sub: `${addresses.length} addresses`, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z', id: 'addresses' },
+                { label: 'Support Chat', sub: 'Talk to our team', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z', id: 'support' },
+                { label: 'ZELUX Receipt', sub: 'View & download receipt', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', href: '/receipt' },
+                { label: 'FAQ', sub: 'Common questions', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', href: '/faq' },
+              ].map(item => (
+                item.href ? (
+                  <a key={item.label} href={item.href} className="flex items-center gap-4 py-4 hover:bg-zelux-cyan/5 transition-colors px-1 rounded-xl">
+                    <div className="w-10 h-10 rounded-full bg-zelux-cyan/10 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-zelux-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon}/></svg>
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-zelux-white">{item.label}</p>
+                      {item.sub && <p className="text-xs text-zelux-gray mt-0.5">{item.sub}</p>}
+                    </div>
+                    <svg className="w-4 h-4 text-zelux-gray/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                  </a>
+                ) : (
+                  <button key={item.label} onClick={() => setTab(item.id)} className="w-full flex items-center gap-4 py-4 hover:bg-zelux-cyan/5 transition-colors px-1 rounded-xl text-left">
+                    <div className="w-10 h-10 rounded-full bg-zelux-cyan/10 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-zelux-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon}/></svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-zelux-white">{item.label}</p>
+                      {item.sub && <p className="text-xs text-zelux-gray mt-0.5">{item.sub}</p>}
+                    </div>
+                    <svg className="w-4 h-4 text-zelux-gray/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
                   </button>
-                ))}
-                <div className="border-t border-zelux-gray-mid/20">
-                  <button onClick={() => { logout(); router.push('/'); }}
-                    className="w-full flex items-center justify-between px-5 py-3.5 text-sm text-zelux-gray hover:text-red-400 hover:bg-zelux-navy-light transition-all">
-                    <span>Sign Out</span>
-                    <svg className="w-3.5 h-3.5 text-zelux-gray/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                  </button>
+                )
+              ))}
+              {/* Sign out */}
+              <button onClick={() => { logout(); router.push('/'); }} className="w-full flex items-center gap-4 py-4 hover:bg-red-500/5 transition-colors px-1 rounded-xl text-left mt-2">
+                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 </div>
-              </div>
+                <p className="text-sm text-red-400">Sign Out</p>
+              </button>
+            </div>
+          )}
+        </div>
 
-              {/* Quick info card */}
-              <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-4 mt-2">
-                <p className="text-[10px] text-zelux-gray uppercase tracking-widest mb-2">Quick Links</p>
-                <div className="space-y-2">
-                  <a href="/receipt" className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    ZELUX Receipt
-                  </a>
-                  <a href="/support" className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    Support Chat
-                  </a>
-                  <a href="/faq" className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    FAQ
-                  </a>
-                </div>
-              </div>
-            </aside>
-
-            {/* Main content */}
-            <div className="flex-1 min-w-0">
-
-          {/* ORDERS */}
-          {tab === 'orders' && (
+        {/* CONTENT SECTIONS */}
+        {tab !== 'menu' && (
+          <div className="max-w-2xl mx-auto px-4 pb-10">
+            {/* Back to menu */}
+            <button onClick={() => setTab('menu')} className="flex items-center gap-2 text-xs text-zelux-gray hover:text-zelux-cyan transition-colors mb-5 mt-4">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+              Back
+            </button>
+            {tab === 'orders' && (
             <div className="animate-fade-in">
               {myOrders.length === 0 ? (
                 <EmptyState
@@ -561,7 +592,11 @@ export default function Profile() {
             </div>{/* end main content */}
           </div>{/* end flex */}
         </div>
+
+          </div>
+        )}
       </main>
+
       <Footer />
     </>
   );
