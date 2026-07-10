@@ -589,10 +589,6 @@ export default function Profile() {
             </div>
           )}
 
-            </div>{/* end main content */}
-          </div>{/* end flex */}
-        </div>
-
           </div>
         )}
       </main>
