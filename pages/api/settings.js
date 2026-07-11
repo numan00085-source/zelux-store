@@ -28,6 +28,16 @@ const DEFAULTS = {
   navLinkElectronics: 'Electronics',
   siteTitle: 'ZELUX - Luxury Redefined',
   metaDescription: 'Premium fashion and electronics, curated for those who refuse to settle.',
+  // Payment Gateways
+  stripeEnabled: true,
+  stripePublishableKey: '',
+  stripeSecretKey: '',
+  stripeWebhookSecret: '',
+  squareEnabled: false,
+  squareAppId: '',
+  squareAccessToken: '',
+  squareLocationId: '',
+  squareEnvironment: 'production',
   maintenanceMode: false,
   maintenanceMessage: 'We are currently updating our store. Please check back shortly.',
   // Flash Sale
