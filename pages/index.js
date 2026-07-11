@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import FlashSaleBanner from '../components/FlashSaleBanner';
+import EmailPopup from '../components/EmailPopup';
 
 // Shein-style home page: a single search bar pinned at the top, then every
 // in-stock product in one full-bleed grid. No hero section, no category
@@ -45,6 +47,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
+      <FlashSaleBanner settings={settings} />
       <main className="pt-16 bg-zelux-navy min-h-screen">
         <div className="sticky top-16 z-30 bg-zelux-navy/95 backdrop-blur-md border-b border-zelux-gray-mid/30 py-4 px-4 sm:px-6">
           <div className="max-w-3xl mx-auto relative">
@@ -72,12 +75,33 @@ export default function Home() {
             </p>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+{/* New Arrivals highlight */}
+              {(() => {
+                const newItems = items.filter(p => p.badge === 'New Arrival' || p.isNew);
+                if (!newItems.length) return null;
+                return (
+                  <div className="col-span-full mb-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <h2 className="text-xs tracking-widest uppercase text-zelux-cyan font-medium">New Arrivals</h2>
+                      <div className="flex-1 h-px bg-zelux-gray-mid/20"></div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                      {newItems.map(p => <ProductCard key={p.id} product={p} />)}
+                    </div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <h2 className="text-xs tracking-widest uppercase text-zelux-cyan font-medium">All Products</h2>
+                      <div className="flex-1 h-px bg-zelux-gray-mid/20"></div>
+                    </div>
+                  </div>
+                );
+              })()}
               {items.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           )}
         </div>
       </main>
       <Footer />
+      <EmailPopup settings={settings} />
     </>
   );
 }

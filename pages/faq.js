@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -78,6 +79,15 @@ function FAQItem({ q, a }) {
 }
 
 export default function FAQ() {
+  const [dynamicFaqs, setDynamicFaqs] = React.useState(null);
+  React.useEffect(() => {
+    fetch('/api/settings').then(r=>r.json()).then(data=>{
+      if (data.faqData) {
+        try { setDynamicFaqs(JSON.parse(data.faqData)); } catch(e) {}
+      }
+    }).catch(()=>{});
+  }, []);
+  const faqsToShow = dynamicFaqs || FAQS;
   const [activeCategory, setActiveCategory] = useState(null);
   const filtered = activeCategory ? FAQS.filter(f => f.category === activeCategory) : FAQS;
 
@@ -102,7 +112,7 @@ export default function FAQ() {
               className={`px-4 py-2 rounded-full text-xs tracking-wide transition-all ${!activeCategory ? 'bg-zelux-cyan text-zelux-navy font-semibold' : 'bg-zelux-navy-card border border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan'}`}>
               All
             </button>
-            {FAQS.map(f => (
+            {faqsToShow.map(f => (
               <button key={f.category} onClick={() => setActiveCategory(f.category)}
                 className={`px-4 py-2 rounded-full text-xs tracking-wide transition-all ${activeCategory === f.category ? 'bg-zelux-cyan text-zelux-navy font-semibold' : 'bg-zelux-navy-card border border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan'}`}>
                 {f.category}
@@ -112,7 +122,7 @@ export default function FAQ() {
 
           {/* FAQ sections */}
           <div className="space-y-10">
-            {filtered.map(section => (
+            {(activeCategory ? faqsToShow.filter(f => f.category === activeCategory) : faqsToShow).map(section => (
               <div key={section.category} className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl overflow-hidden">
                 <div className="px-6 py-4 border-b border-zelux-gray-mid/20">
                   <h2 className="text-xs tracking-widest uppercase text-zelux-cyan">{section.category}</h2>
