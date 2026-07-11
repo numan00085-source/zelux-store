@@ -1,18 +1,8 @@
-import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Link from 'next/link';
 
 export default function About() {
-  const [s, setS] = React.useState({
-    founderName: 'Numan Salclox',
-    founderTitle: 'Founder & CEO, ZELUX',
-    founderBio: "ZELUX was founded with a clear intention: to build a brand that respects both the customer's taste and their budget. The idea was simple — source the best products available, present them honestly, and deliver them reliably.",
-    founderBio2: "Every product decision, every design detail, and every customer interaction at ZELUX reflects that original intention. We're not here to move units. We're here to build something worth standing behind.",
-    aboutMission: "ZELUX is a premium e-commerce brand based in the United States, built around a single belief — that the clothes you wear, the shoes you walk in, and the products around you should reflect who you are, not what you could afford to compromise on.",
-    aboutMission2: "We source every item in our catalog with the same scrutiny we'd apply if we were buying for ourselves. If it doesn't meet the standard, it doesn't make the cut.",
-  });
-  React.useEffect(() => { fetch('/api/settings').then(r=>r.json()).then(data=>setS(prev=>({...prev,...data}))).catch(()=>{}); }, []);
   return (
     <>
       <Navbar />
@@ -84,10 +74,10 @@ export default function About() {
                 <span className="font-display text-xl font-bold text-zelux-cyan">N</span>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-zelux-white mb-1">{s.founderName}</h3>
-                <p className="text-xs text-zelux-cyan mb-4 tracking-wide">{s.founderTitle}</p>
-                <p className="text-sm text-zelux-gray leading-relaxed mb-3">{s.founderBio}</p>
-                <p className="text-sm text-zelux-gray leading-relaxed">{s.founderBio2}</p>
+                <h3 className="text-lg font-semibold text-zelux-white mb-1">Numan Salclox</h3>
+                <p className="text-xs text-zelux-cyan mb-4 tracking-wide">Founder & CEO, ZELUX</p>
+                <p className="text-sm text-zelux-gray leading-relaxed mb-3">ZELUX was founded with a clear intention: to build a brand that respects both the customer&apos;s taste and their budget. The idea was simple — source the best products available, present them honestly, and deliver them reliably.</p>
+                <p className="text-sm text-zelux-gray leading-relaxed">Every product decision, every design detail, and every customer interaction at ZELUX reflects that original intention. We&apos;re not here to move units. We&apos;re here to build something worth standing behind.</p>
               </div>
             </div>
           </section>

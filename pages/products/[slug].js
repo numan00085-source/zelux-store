@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { FomoWidget, ReviewsSection, RelatedProducts, SizeGuideModal } from '../../components/ProductExtras';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -19,8 +18,6 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [lightbox, setLightbox] = useState(false);
-  const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [settings, setSettings] = useState({});
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
 
@@ -28,10 +25,6 @@ export default function ProductPage() {
   const addToCart = useCartStore(s => s.addToCart);
   const toggle = useWishlistStore(s => s.toggle);
   const isWishlisted = useWishlistStore(s => s.isWishlisted(product?.id));
-
-  useEffect(() => {
-    fetch('/api/settings').then(r => r.json()).then(s => setSettings(s)).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -166,8 +159,6 @@ export default function ProductPage() {
                 {discount && <span className="text-sm font-semibold text-green-400">Save {discount}%</span>}
               </div>
 
-              <FomoWidget productId={product.id} enabled={settings.fomoEnabled !== false} />
-
               {product.isDigital && (
                 <div className="flex items-center gap-2 text-xs text-zelux-cyan mb-4 bg-zelux-cyan/10 border border-zelux-cyan/30 rounded-full px-4 py-2 w-fit">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -180,10 +171,7 @@ export default function ProductPage() {
               {/* Size selector */}
               {variantOptions?.length > 0 && (
                 <div className="mb-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs tracking-widest uppercase text-zelux-gray">{isApparel ? 'Select Size' : 'Select Variant'}</p>
-                    {isApparel && <button onClick={() => setShowSizeGuide(true)} className="text-xs text-zelux-cyan hover:underline">Size Guide →</button>}
-                  </div>
+                  <p className="text-xs tracking-widest uppercase text-zelux-gray mb-3">{isApparel ? 'Select Size' : 'Select Variant'}</p>
                   <div className="flex flex-wrap gap-2">
                     {variantOptions.map(v => (
                       <button key={v} onClick={() => setSelectedVariant(v)}
@@ -302,9 +290,6 @@ export default function ProductPage() {
         </div>
       )}
       <Footer />
-
-      {/* Size Guide */}
-      {showSizeGuide && <SizeGuideModal onClose={() => setShowSizeGuide(false)} />}
 
       {/* Lightbox */}
       {lightbox && (
