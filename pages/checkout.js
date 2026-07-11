@@ -68,6 +68,7 @@ export default function Checkout() {
       if (!form.address) { setError('Please fill in all required fields.'); return; }
       if (!form.country) { setError('Please select a shipping country.'); return; }
       if (!form.phone) { setError('Please enter your phone number.'); return; }
+      if (!form.zip) { setError('Please enter your ZIP / postal code.'); return; }
     }
     setLoading(true); setError('');
     try {
@@ -146,7 +147,7 @@ export default function Checkout() {
                 { name: 'address', label: 'Street Address *', type: 'text' },
                 { name: 'city', label: 'City *', type: 'text' },
                 { name: 'state', label: 'State / Province', type: 'text' },
-                { name: 'zip', label: 'ZIP / Postal Code *', type: 'text' },
+                { name: 'zip', label: 'ZIP / Postal Code *', type: 'text', placeholder: '10001' },
               ].map(f => (
                 <div key={f.name}>
                   <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">{f.label}</label>

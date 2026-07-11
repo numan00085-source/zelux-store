@@ -51,7 +51,13 @@ export default function Profile() {
   const wishlist = useWishlistStore(s => s.wishlist);
   const toggle = useWishlistStore(s => s.toggle);
   const router = useRouter();
+  const router = useRouter();
   const [tab, setTab] = useState('menu');
+
+  // Open specific tab if ?tab=orders etc. in URL
+  useEffect(() => {
+    if (router.query.tab) setTab(router.query.tab);
+  }, [router.query.tab]);
 
   // Support ?tab=support URL
   useEffect(() => {

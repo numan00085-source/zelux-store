@@ -53,7 +53,7 @@ export default function Footer() {
             <li><Link href="/about" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">About ZELUX</Link></li>
             <li><Link href="/faq" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">FAQ</Link></li>
             <li><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Profile</Link></li>
-            <li><Link href="/profile" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Orders</Link></li>
+            <li><Link href="/profile?tab=orders" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">My Orders</Link></li>
             <li><Link href="/wishlist" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">Wishlist</Link></li>
             <li><Link href="/receipt" className="text-sm text-zelux-gray hover:text-zelux-cyan transition-colors duration-300">ZELUX Receipt</Link></li>
           </ul>
