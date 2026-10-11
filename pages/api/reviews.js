@@ -1,92 +1,114 @@
-// pages/api/reviews.js — GET all reviews for a product, POST new review
-import { Redis } from '@upstash/redis';
+// pages/api/reviews.js — Product reviews API
+import { getRedis, getAllOrders } from '../../lib/redis';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+const ADMIN_KEY = process.env.ADMIN_KEY || process.env.NEXT_PUBLIC_ADMIN_KEY || '';
 
 function maskName(name) {
-  if (!name) return 'Customer';
-  const words = name.trim().split(/\s+/);
-  // Show first 4 chars of first word, mask rest with **
-  const first = words[0];
-  const visible = first.slice(0, 4);
-  const masked = first.length > 4 ? '**' : '';
-  return visible + masked;
+  if (!name) return 'Cust**';
+  const clean = name.trim();
+  if (clean.length <= 4) return clean + '**';
+  return clean.slice(0, 4) + '**';
+}
+
+function reviewsKey(productId) {
+  return `zelux:reviews:${productId}`;
 }
 
 export default async function handler(req, res) {
   const { productId } = req.query;
   if (!productId) return res.status(400).json({ error: 'productId required' });
 
-  const key = `reviews:${productId}`;
+  const redis = getRedis();
 
+  // GET — return reviews for this product
   if (req.method === 'GET') {
     try {
-      const raw = await redis.get(key);
-      const reviews = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
-      return res.status(200).json(reviews);
-    } catch (e) {
-      return res.status(200).json([]);
+      const data = await redis.get(reviewsKey(productId));
+      const reviews = data ? JSON.parse(data) : [];
+      return res.json(reviews);
+    } catch (err) {
+      return res.json([]);
     }
   }
 
+  // POST — add a review
   if (req.method === 'POST') {
-    const { name, rating, comment, orderId, adminKey } = req.body;
+    const { name, rating, comment, orderId, adminKey } = req.body || {};
 
-    // Admin can post without orderId check
-    const isAdmin = adminKey === process.env.ADMIN_SECRET;
-
-    if (!isAdmin && !orderId) {
-      return res.status(403).json({ error: 'Order required to review' });
+    if (!comment || !comment.trim()) {
+      return res.status(400).json({ error: 'Comment is required' });
     }
 
-    if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ error: 'Rating 1-5 required' });
+    const isAdmin = adminKey && adminKey === ADMIN_KEY;
+    let verified = false;
+
+    // Non-admin customers must have a delivered order
+    if (!isAdmin) {
+      if (!orderId) {
+        return res.status(403).json({ error: 'Order ID required to leave a review' });
+      }
+      try {
+        const orders = await getAllOrders();
+        const order = orders.find(o => o.id === orderId || o.stripeSessionId === orderId);
+        if (!order) {
+          return res.status(403).json({ error: 'Order not found' });
+        }
+        // Check if latest status is Delivered
+        const latestStatus = order.statusHistory
+          ? order.statusHistory[order.statusHistory.length - 1]?.status
+          : order.status;
+        if (!latestStatus || latestStatus.toLowerCase() !== 'delivered') {
+          return res.status(403).json({ error: 'Order must be delivered before leaving a review' });
+        }
+        verified = true;
+      } catch (err) {
+        return res.status(500).json({ error: 'Failed to verify order' });
+      }
     }
-    if (!comment || comment.trim().length < 3) {
-      return res.status(400).json({ error: 'Comment required' });
-    }
+
+    const stars = Math.min(5, Math.max(1, parseInt(rating) || 5));
+    const reviewerName = isAdmin ? (name || 'Customer') : maskName(name);
+
+    const review = {
+      id: `rev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      name: reviewerName,
+      rating: stars,
+      comment: comment.trim().slice(0, 500),
+      verified,
+      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      createdAt: new Date().toISOString(),
+    };
 
     try {
-      const raw = await redis.get(key);
-      const reviews = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
-
-      const newReview = {
-        id: Date.now().toString(),
-        name: maskName(name || 'Customer'),
-        rating: Math.min(5, Math.max(1, parseInt(rating))),
-        comment: comment.trim().slice(0, 500),
-        date: new Date().toISOString().split('T')[0],
-        verified: !isAdmin,
-      };
-
-      reviews.unshift(newReview);
-      await redis.set(key, JSON.stringify(reviews));
-
-      return res.status(200).json({ success: true, review: newReview });
-    } catch (e) {
+      const data = await redis.get(reviewsKey(productId));
+      const reviews = data ? JSON.parse(data) : [];
+      reviews.unshift(review);
+      await redis.set(reviewsKey(productId), JSON.stringify(reviews));
+      return res.json({ success: true, review });
+    } catch (err) {
       return res.status(500).json({ error: 'Failed to save review' });
     }
   }
 
+  // DELETE — admin only
   if (req.method === 'DELETE') {
-    // Admin only — delete a review
-    const { reviewId, adminKey } = req.body;
-    if (adminKey !== process.env.ADMIN_SECRET) {
+    const { reviewId, adminKey } = req.body || {};
+    if (!adminKey || adminKey !== ADMIN_KEY) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
+    if (!reviewId) {
+      return res.status(400).json({ error: 'reviewId required' });
+    }
     try {
-      const raw = await redis.get(key);
-      const reviews = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+      const data = await redis.get(reviewsKey(productId));
+      const reviews = data ? JSON.parse(data) : [];
       const filtered = reviews.filter(r => r.id !== reviewId);
-      await redis.set(key, JSON.stringify(filtered));
-      return res.status(200).json({ success: true });
-    } catch (e) {
-      return res.status(500).json({ error: 'Failed to delete' });
+      await redis.set(reviewsKey(productId), JSON.stringify(filtered));
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: 'Failed to delete review' });
     }
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return res.status(405).end();
 }
