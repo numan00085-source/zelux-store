@@ -281,7 +281,7 @@ export default function ProductPage() {
 
       {/* Reviews Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-        <ReviewSection productId={product?.id} />
+        <ReviewSection productId={product?.id} orderId={router.query.order || null} />
       </div>
 
       {/* Toast */}

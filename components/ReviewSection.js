@@ -123,6 +123,7 @@ function ReviewForm({ productId, orderId, onSubmitted }) {
 export default function ReviewSection({ productId, orderId = null }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Only show form if customer came with a valid orderId (i.e. their order is delivered)
   const [showForm, setShowForm] = useState(!!orderId);
 
   useEffect(() => {
@@ -156,7 +157,8 @@ export default function ReviewSection({ productId, orderId = null }) {
             </div>
           )}
         </div>
-        {!orderId && !showForm && (
+        {/* Only verified buyers (with orderId) can write a review */}
+        {orderId && !showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="border border-zelux-black text-zelux-black px-6 py-2.5 text-xs tracking-widest uppercase hover:bg-zelux-black hover:text-white transition-colors rounded-lg"
@@ -166,14 +168,14 @@ export default function ReviewSection({ productId, orderId = null }) {
         )}
       </div>
 
-      {/* Review Form */}
-      {showForm && (
+      {/* Review Form — only for verified buyers */}
+      {showForm && orderId && (
         <div className="mb-8">
           <ReviewForm productId={productId} orderId={orderId} onSubmitted={handleNewReview} />
         </div>
       )}
 
-      {/* Reviews List */}
+      {/* Reviews List — visible to everyone */}
       {loading ? (
         <div className="text-center py-8 text-zelux-gray text-sm">Loading reviews...</div>
       ) : reviews.length === 0 ? (
