@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import ReviewSection from '../../components/ReviewSection';
 import { useCartStore, useWishlistStore } from '../../lib/store';
 
 export default function ProductPage() {
@@ -277,6 +278,11 @@ export default function ProductPage() {
           </div>
         </div>
       </main>
+
+      {/* Reviews Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+        <ReviewSection productId={product?.id} />
+      </div>
 
       {/* Toast */}
       {toastMessage && (
