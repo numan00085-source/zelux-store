@@ -170,7 +170,7 @@ export default function ProductPage() {
             <div className="flex flex-col animate-fade-in-up">
               <p className="text-xs tracking-widest uppercase text-zelux-gray mb-2">{product.category}</p>
               {product.badge && <span className="inline-block bg-zelux-cyan text-zelux-navy text-xs px-3 py-1 rounded-full tracking-wider font-semibold w-fit mb-3 shadow-glow-sm">{product.badge}</span>}
-              <h1 className="font-display text-3xl sm:text-4xl font-light mb-4 text-zelux-white leading-tight">{product.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-zelux-white leading-tight">{product.name}</h1>
 
               {/* Price */}
               <div className="flex items-center gap-3 mb-2">

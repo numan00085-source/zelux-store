@@ -97,7 +97,7 @@ function ReviewForm({ productId, orderId, onSubmitted }) {
 
   return (
     <form onSubmit={submit} className="bg-zelux-navy-light border border-zelux-gray-mid/20 rounded-2xl p-6">
-      <h4 className="font-display text-base font-light text-zelux-white mb-5 tracking-wide">Write a Review</h4>
+      <h4 className="text-sm font-semibold text-zelux-white mb-5">Write a Review</h4>
 
       <div className="mb-5">
         <label className="block text-[10px] text-zelux-gray mb-2 uppercase tracking-widest">Your Rating</label>
@@ -178,7 +178,7 @@ export default function ReviewSection({ productId, orderId = null }) {
 
       {/* Header */}
       <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
-        <h3 className="font-display text-2xl font-light text-zelux-white tracking-wide">Customer Reviews</h3>
+        <h3 className="text-xl font-bold text-zelux-white">Customer Reviews</h3>
         {orderId && !showForm && (
           <button
             onClick={() => setShowForm(true)}
@@ -194,7 +194,7 @@ export default function ReviewSection({ productId, orderId = null }) {
         <div className="flex flex-col sm:flex-row gap-6 mb-10 bg-zelux-navy-light border border-zelux-gray-mid/20 rounded-2xl p-6">
           {/* Big score */}
           <div className="flex flex-col items-center justify-center sm:border-r border-zelux-gray-mid/20 sm:pr-6 sm:min-w-[120px]">
-            <span className="font-display text-5xl font-light text-zelux-white mb-1">{avgRating}</span>
+            <span className="text-5xl font-bold text-zelux-white mb-1">{avgRating}</span>
             <StarRating value={Math.round(parseFloat(avgRating))} size="sm" />
             <span className="text-xs text-zelux-gray mt-2">{reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
           </div>

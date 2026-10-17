@@ -31,7 +31,7 @@ export default function Cart() {
     <>
       <Navbar />
       <main className="pt-16 max-w-5xl mx-auto px-4 sm:px-6 py-16 min-h-screen bg-zelux-navy">
-        <h1 className="font-display text-4xl font-light mb-10 text-zelux-white">Shopping Cart</h1>
+        <h1 className="text-2xl font-bold text-zelux-white">Shopping Cart</h1>
         {!hydrated ? null : cart.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
             <p className="text-zelux-gray mb-6">Your cart is empty.</p>
@@ -45,7 +45,7 @@ export default function Cart() {
                   <div className="flex gap-4">
                     <img src={item.images[0]} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 object-cover bg-zelux-navy-light rounded-lg flex-shrink-0" />
                     <div className="flex-1 min-w-0 sm:hidden">
-                      <h3 className="font-display text-base font-light text-zelux-white leading-snug">{item.name}</h3>
+                      <h3 className="text-sm font-medium text-zelux-white leading-snug">{item.name}</h3>
                       <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
                       {item.customization && (item.customization.name || item.customization.number) && (
                         <p className="text-[11px] text-zelux-cyan mt-0.5">
@@ -56,7 +56,7 @@ export default function Cart() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="hidden sm:block">
-                      <h3 className="font-display text-lg font-light text-zelux-white">{item.name}</h3>
+                      <h3 className="text-base font-medium text-zelux-white">{item.name}</h3>
                       <p className="text-xs text-zelux-gray mt-1">{item.selectedVariant}</p>
                       {item.customization && (item.customization.name || item.customization.number) && (
                         <p className="text-[11px] text-zelux-cyan mt-0.5">
@@ -78,7 +78,7 @@ export default function Cart() {
               ))}
             </div>
             <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-8 h-fit">
-              <h2 className="font-display text-2xl font-light mb-6 text-zelux-white">Order Summary</h2>
+              <h2 className="text-base font-semibold text-zelux-white">Order Summary</h2>
               <div className="space-y-3 mb-6 text-zelux-gray">
                 <div className="flex justify-between text-sm"><span>Subtotal</span><span className="text-zelux-white">${total.toFixed(2)}</span></div>
                 <div className="flex justify-between text-sm"><span>Shipping</span><span className="text-zelux-white">{isAllDigitalCart ? 'N/A (digital)' : isFree ? 'Free' : `$${shippingFee.toFixed(2)}`}</span></div>

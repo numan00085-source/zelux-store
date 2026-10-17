@@ -9,7 +9,7 @@ function MaintenanceScreen({ message }) {
   return (
     <div className="min-h-screen bg-zelux-navy flex items-center justify-center px-4 text-center">
       <div>
-        <h1 className="font-display text-4xl text-zelux-white glow-text mb-4">ZELUX</h1>
+        <h1 className="text-4xl font-extrabold text-zelux-white glow-text mb-4">ZELUX</h1>
         <p className="text-zelux-gray text-sm max-w-md mx-auto">{message}</p>
       </div>
     </div>

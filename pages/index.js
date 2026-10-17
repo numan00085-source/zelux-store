@@ -8,6 +8,7 @@ export default function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
     fetch('/api/products-list')
@@ -21,37 +22,31 @@ export default function Home() {
       .catch(() => setLoading(false));
   }, []);
 
+  const categories = ['All', ...Array.from(new Set(allItems.map(p => p.category).filter(Boolean)))];
+
   useEffect(() => {
-    if (!searchQuery.trim()) { setItems(allItems); return; }
-    const q = searchQuery.toLowerCase();
-    setItems(allItems.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      (p.description && p.description.toLowerCase().includes(q)) ||
-      (p.badge && p.badge.toLowerCase().includes(q))
-    ));
-  }, [searchQuery, allItems]);
+    let filtered = allItems;
+    if (activeCategory !== 'All') filtered = filtered.filter(p => p.category === activeCategory);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        (p.badge && p.badge.toLowerCase().includes(q))
+      );
+    }
+    setItems(filtered);
+  }, [searchQuery, allItems, activeCategory]);
 
   return (
     <>
       <Navbar />
       <main className="pt-16 bg-zelux-navy min-h-screen">
 
-        {/* ─── HERO ─── */}
-        <div className="relative overflow-hidden">
-          {/* bg glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-zelux-cyan/5 blur-[120px] pointer-events-none" />
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-14 pb-10 text-center relative">
-            <p className="text-[10px] tracking-[0.35em] text-zelux-cyan/80 uppercase mb-5">Premium Drops · Worldwide Shipping</p>
-            <h1 className="font-display text-5xl sm:text-7xl font-light text-zelux-white mb-5 leading-[1.1]">
-              Shop Smarter.<br />
-              <span className="text-zelux-cyan">Live Better.</span>
-            </h1>
-            <p className="text-sm text-zelux-gray max-w-sm mx-auto mb-8 leading-relaxed">
-              Curated tech, lifestyle & fashion — secure checkout, easy returns, fast delivery.
-            </p>
-
-            {/* Search bar inside hero */}
-            <div className="max-w-lg mx-auto relative mb-8">
+        {/* ── TOP SEARCH BAR (Amazon-style) ── */}
+        <div className="bg-zelux-navy-light border-b border-zelux-gray-mid/20 sticky top-16 z-30">
+          <div className="max-w-5xl mx-auto px-4 py-3">
+            <div className="relative">
               <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zelux-gray pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -60,33 +55,23 @@ export default function Home() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="w-full bg-zelux-navy-card border border-zelux-gray-mid/50 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors"
+                className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg pl-11 pr-4 py-2.5 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors placeholder-zelux-gray/50"
               />
-            </div>
-
-            {/* CTAs */}
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              <a href="#products" className="bg-zelux-gold text-zelux-navy px-8 py-3 rounded-xl text-xs tracking-widest uppercase font-bold hover:brightness-105 transition-all shadow-md">
-                Shop Now
-              </a>
-              <a href="/digital-assets" className="border border-zelux-gray-mid/50 text-zelux-gray px-8 py-3 rounded-xl text-xs tracking-widest uppercase hover:border-zelux-cyan/50 hover:text-zelux-cyan transition-all">
-                Digital Products
-              </a>
             </div>
           </div>
         </div>
 
-        {/* ─── TRUST BAR ─── */}
-        <div className="border-y border-zelux-gray-mid/20 bg-zelux-navy-light/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-6 sm:gap-12 flex-wrap">
+        {/* ── TRUST BAR ── */}
+        <div className="bg-zelux-cyan/5 border-b border-zelux-cyan/10">
+          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-6 sm:gap-10 flex-wrap">
             {[
-              { icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', label: 'Worldwide Delivery' },
-              { icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', label: 'Secure Checkout' },
-              { icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', label: 'Easy Returns' },
-              { icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', label: 'Premium Quality' },
+              { icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4', label: 'Free Shipping $150+' },
+              { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Secure Payment' },
+              { icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', label: '30-Day Returns' },
+              { icon: 'M13 10V3L4 14h7v7l9-11h-7z', label: 'Fast Delivery' },
             ].map(t => (
-              <div key={t.label} className="flex items-center gap-2 text-[11px] text-zelux-gray tracking-wide">
-                <svg className="w-3.5 h-3.5 text-zelux-cyan flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div key={t.label} className="flex items-center gap-1.5 text-[11px] text-zelux-cyan/80 font-medium">
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={t.icon} />
                 </svg>
                 {t.label}
@@ -95,20 +80,43 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ─── PRODUCT GRID ─── */}
-        <div id="products" className="max-w-7xl mx-auto px-3 sm:px-6 py-8">
+        {/* ── CATEGORY TABS ── */}
+        {!loading && categories.length > 1 && (
+          <div className="border-b border-zelux-gray-mid/20 bg-zelux-navy">
+            <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 overflow-x-auto scrollbar-hide py-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                    activeCategory === cat
+                      ? 'bg-zelux-cyan text-zelux-navy'
+                      : 'text-zelux-gray hover:text-zelux-white border border-zelux-gray-mid/30 hover:border-zelux-gray-mid/60'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── PRODUCT GRID ── */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6">
           {!loading && (
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-xl font-light text-zelux-white">
-                {searchQuery ? `Results for "${searchQuery}"` : 'All Products'}
-              </h2>
-              <span className="text-xs text-zelux-gray">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-zelux-gray">
+                {searchQuery
+                  ? <><span className="text-zelux-white font-medium">{items.length}</span> results for "<span className="text-zelux-cyan">{searchQuery}</span>"</>
+                  : <><span className="text-zelux-white font-medium">{items.length}</span> products</>
+                }
+              </p>
             </div>
           )}
 
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-              {[...Array(12)].map((_, i) => <div key={i} className="shimmer-bg rounded-xl aspect-[3/4]" />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+              {[...Array(15)].map((_, i) => <div key={i} className="shimmer-bg rounded-xl aspect-[3/4]" />)}
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-20">
@@ -117,7 +125,7 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {items.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           )}

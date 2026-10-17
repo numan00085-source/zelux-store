@@ -43,7 +43,7 @@ export default function Navbar() {
         </div>
 
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group">
-          <span className="font-display text-2xl font-light tracking-widest rainbow-text transition-all duration-300">ZELUX</span>
+          <span className="text-2xl font-bold tracking-[0.3em] rainbow-text transition-all duration-300">ZELUX</span>
         </Link>
 
         <div className="flex items-center gap-5">
