@@ -70,15 +70,30 @@ export default function ProductPage() {
   const variantOptions = isApparel ? product.sizes : product.variants;
   const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : null;
 
-  const handleAddToCart = () => {
+  const validateSelections = () => {
     const missing = [];
     if (variantOptions?.length > 0 && !selectedVariant) missing.push(isApparel ? 'size' : 'variant');
     if (product.colors?.length > 0 && !selectedColor) missing.push('color');
+    return missing;
+  };
+
+  const handleAddToCart = () => {
+    const missing = validateSelections();
     if (missing.length > 0) { showToast(`Please select a ${missing.join(' and ')} before adding to cart`); return; }
     const cartItem = { ...product };
     if (product.customizable && (customName || customNumber)) cartItem.customization = { name: customName, number: customNumber };
     addToCart(cartItem, [selectedVariant, selectedColor].filter(Boolean).join(' / ') || 'Standard', qty);
     setAdded(true); setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    const missing = validateSelections();
+    if (missing.length > 0) { showToast(`Please select a ${missing.join(' and ')} first`); return; }
+    const cartItem = { ...product };
+    if (product.customizable && (customName || customNumber)) cartItem.customization = { name: customName, number: customNumber };
+    // Add to cart then immediately go to checkout
+    addToCart(cartItem, [selectedVariant, selectedColor].filter(Boolean).join(' / ') || 'Standard', qty);
+    router.push('/checkout');
   };
 
   return (
@@ -236,14 +251,22 @@ export default function ProductPage() {
                 </button>
               </div>
 
-              {/* Add to cart */}
+              {/* Buy Now + Add to Cart */}
               {product.inStock === false ? (
                 <button disabled className="w-full py-4 text-xs tracking-widest uppercase font-medium bg-zelux-gray-light text-zelux-gray rounded-2xl cursor-not-allowed">Out of Stock</button>
               ) : (
-                <button onClick={handleAddToCart}
-                  className={`btn-glow w-full py-4 text-sm tracking-widest uppercase font-semibold rounded-2xl transition-all duration-300 active:scale-98 ${added ? 'bg-emerald-500 text-white shadow-none' : 'bg-zelux-cyan text-zelux-navy hover:shadow-glow-lg hover:scale-[1.02]'}`}>
-                  {added ? '✓ Added to Cart' : 'Add to Cart'}
-                </button>
+                <div className="flex flex-col gap-3">
+                  {/* Buy Now — primary, Amazon-style */}
+                  <button onClick={handleBuyNow}
+                    className="btn-glow w-full py-4 text-sm tracking-widest uppercase font-bold rounded-2xl bg-zelux-gold text-zelux-navy hover:brightness-105 hover:scale-[1.01] transition-all duration-200 active:scale-[0.99]">
+                    Buy Now
+                  </button>
+                  {/* Add to Cart — secondary */}
+                  <button onClick={handleAddToCart}
+                    className={`w-full py-3.5 text-xs tracking-widest uppercase font-semibold rounded-2xl border-2 transition-all duration-200 active:scale-[0.99] ${added ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-zelux-cyan/60 text-zelux-cyan hover:bg-zelux-cyan/10 hover:border-zelux-cyan'}`}>
+                    {added ? '✓ Added to Cart' : 'Add to Cart'}
+                  </button>
+                </div>
               )}
 
               {/* Trust signals */}
@@ -290,15 +313,21 @@ export default function ProductPage() {
 
       {/* Mobile sticky CTA bar */}
       {product.inStock !== false && (
-        <div className="fixed bottom-0 left-0 right-0 z-[150] sm:hidden bg-zelux-navy/95 backdrop-blur-md border-t border-zelux-gray-mid/30 px-4 py-3 flex items-center gap-3">
-          <div className="flex-1">
-            <p className="text-xs text-zelux-gray truncate">{product.name}</p>
+        <div className="fixed bottom-0 left-0 right-0 z-[150] sm:hidden bg-zelux-navy/97 backdrop-blur-md border-t border-zelux-gray-mid/30 px-4 py-3">
+          <div className="flex items-center gap-2 mb-2">
             <p className="text-sm font-semibold text-zelux-cyan">${product.price}</p>
+            <p className="text-xs text-zelux-gray truncate">{product.name}</p>
           </div>
-          <button onClick={handleAddToCart}
-            className={`px-6 py-3 text-xs tracking-widest uppercase font-bold rounded-xl transition-all duration-300 ${added ? 'bg-emerald-500 text-white' : 'bg-zelux-cyan text-zelux-navy'}`}>
-            {added ? '✓ Added' : 'Add to Cart'}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleBuyNow}
+              className="flex-1 py-3 text-xs tracking-widest uppercase font-bold rounded-xl bg-zelux-gold text-zelux-navy">
+              Buy Now
+            </button>
+            <button onClick={handleAddToCart}
+              className={`flex-1 py-3 text-xs tracking-widest uppercase font-semibold rounded-xl border-2 transition-all ${added ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-zelux-cyan/60 text-zelux-cyan'}`}>
+              {added ? '✓ Added' : 'Add to Cart'}
+            </button>
+          </div>
         </div>
       )}
 
