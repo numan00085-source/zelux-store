@@ -15,7 +15,8 @@ function reviewsKey(productId) {
 }
 
 export default async function handler(req, res) {
-  const { productId } = req.query;
+  // productId can come from query string (GET) or request body (POST/DELETE)
+  const productId = req.query.productId || (req.body && req.body.productId);
   if (!productId) return res.status(400).json({ error: 'productId required' });
 
   const redis = getRedis();
