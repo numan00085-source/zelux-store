@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import OfferBanner from '../components/OfferBanner';
 
 export default function Home() {
   const [allItems, setAllItems] = useState([]);
@@ -42,6 +43,9 @@ export default function Home() {
     <>
       <Navbar />
       <main className="pt-16 bg-zelux-navy min-h-screen">
+
+        {/* ── OFFER BANNER ── */}
+        <OfferBanner />
 
         {/* ── TOP SEARCH BAR (Amazon-style) ── */}
         <div className="bg-zelux-navy-light border-b border-zelux-gray-mid/20 sticky top-16 z-30">
