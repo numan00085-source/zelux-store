@@ -61,6 +61,28 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Hero Section */}
+        <div className="relative overflow-hidden border-b border-zelux-gray-mid/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-zelux-cyan/5 via-transparent to-zelux-navy-light/30 pointer-events-none" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">
+            <p className="text-[10px] tracking-[0.3em] text-zelux-cyan uppercase mb-4">Premium Drops · New Arrivals Weekly</p>
+            <h1 className="font-display text-4xl sm:text-6xl font-light text-zelux-white mb-4 leading-tight">
+              Shop Smarter.<br className="hidden sm:block" /> <span className="text-zelux-cyan">Live Better.</span>
+            </h1>
+            <p className="text-sm text-zelux-gray max-w-md mx-auto mb-8 leading-relaxed">
+              Curated tech, lifestyle & fashion — fast worldwide shipping, secure checkout, and hassle-free returns.
+            </p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <a href="#products" className="bg-zelux-cyan text-zelux-navy px-8 py-3 rounded-full text-xs tracking-widest uppercase font-semibold hover:bg-zelux-cyan/90 transition-all shadow-glow-sm">
+                Shop Now
+              </a>
+              <a href="/digital-assets" className="border border-zelux-gray-mid/40 text-zelux-gray px-8 py-3 rounded-full text-xs tracking-widest uppercase hover:border-zelux-cyan/50 hover:text-zelux-cyan transition-all">
+                Digital Products
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* Trust bar */}
         <div className="border-b border-zelux-gray-mid/20 bg-zelux-navy-light/40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-6 sm:gap-10 flex-wrap">
@@ -78,7 +100,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6">
+        <div id="products" className="max-w-7xl mx-auto px-3 sm:px-6 py-6">
           {!loading && items.length > 0 && (
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-xl font-light text-zelux-white">

@@ -105,85 +105,158 @@ export default function Checkout() {
     </>
   );
 
+  const inputCls = "w-full bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-xl px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors placeholder-zelux-gray/40";
+  const labelCls = "block text-[10px] text-zelux-gray tracking-widest uppercase mb-1.5";
+
   return (
     <>
       <Navbar />
-      <main className="pt-16 max-w-5xl mx-auto px-4 sm:px-6 py-16 min-h-screen bg-zelux-navy">
-        <h1 className="font-display text-4xl font-light mb-10 text-zelux-white">Checkout</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <h2 className="text-xs tracking-widest uppercase mb-6 text-zelux-cyan">{isAllDigitalCart ? 'Contact Information' : 'Shipping Information'}</h2>
-            {!isAllDigitalCart && user && savedAddresses.length > 0 && (
-              <div className="mb-6">
-                <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">Use a saved address</label>
-                <select value={selectedAddressId} onChange={e => applySavedAddress(e.target.value)}
-                  className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300">
-                  <option value="">Enter manually</option>
-                  {savedAddresses.map(a => (
-                    <option key={a.id} value={a.id}>{a.label ? `${a.label} — ` : ''}{a.address}, {a.city}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            {isAllDigitalCart && (
-              <div className="mb-6 flex items-center gap-2 text-xs text-zelux-cyan bg-zelux-cyan/10 border border-zelux-cyan/30 rounded-lg px-4 py-3">
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8.25V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18V8.25m-18 0A2.25 2.25 0 015.25 6h13.5A2.25 2.25 0 0121 8.25m-18 0v.243a2.25 2.25 0 001.183 1.981l7.5 4.219a2.25 2.25 0 002.234 0l7.5-4.219A2.25 2.25 0 0021 8.493V8.25" /></svg>
-                This order is digital - no shipping needed. We'll deliver it to the email you enter below.
-              </div>
-            )}
-            <div className="space-y-4">
-              {[
-                { name: 'name', label: 'Full Name *', type: 'text' },
-                { name: 'email', label: 'Email Address *', type: 'email' },
-              ].map(f => (
-                <div key={f.name}>
-                  <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">{f.label}</label>
-                  <input name={f.name} type={f.type} value={form[f.name]} onChange={handleChange}
-                    className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300" />
+      <main className="pt-16 min-h-screen bg-zelux-navy">
+        {/* Header bar */}
+        <div className="border-b border-zelux-gray-mid/20 bg-zelux-navy-light/30">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 className="font-display text-xl font-light text-zelux-white">Checkout</h1>
+            <div className="flex items-center gap-1.5 text-[11px] text-zelux-gray">
+              <svg className="w-3.5 h-3.5 text-zelux-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              SSL Secured by Stripe
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            {/* LEFT — form */}
+            <div className="lg:col-span-3 space-y-6">
+
+              {isAllDigitalCart && (
+                <div className="flex items-center gap-2 text-xs text-zelux-cyan bg-zelux-cyan/10 border border-zelux-cyan/30 rounded-xl px-4 py-3">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8.25V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18V8.25m-18 0A2.25 2.25 0 015.25 6h13.5A2.25 2.25 0 0121 8.25m-18 0v.243a2.25 2.25 0 001.183 1.981l7.5 4.219a2.25 2.25 0 002.234 0l7.5-4.219A2.25 2.25 0 0021 8.493V8.25" /></svg>
+                  Digital order — delivered to your email instantly
                 </div>
-              ))}
-              {!isAllDigitalCart && [
-                { name: 'phone', label: 'Phone Number *', type: 'tel', placeholder: '+1 (555) 000-0000' },
-                { name: 'address', label: 'Street Address *', type: 'text' },
-                { name: 'city', label: 'City *', type: 'text' },
-                { name: 'state', label: 'State / Province', type: 'text' },
-                { name: 'zip', label: 'ZIP / Postal Code *', type: 'text', placeholder: '10001' },
-              ].map(f => (
-                <div key={f.name}>
-                  <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">{f.label}</label>
-                  <input name={f.name} type={f.type} value={form[f.name]} onChange={handleChange}
-                    placeholder={f.placeholder || ''} autoComplete={f.name === 'phone' ? 'tel' : undefined}
-                    className="w-full bg-zelux-navy-card border border-zelux-gray-mid/40 rounded-lg px-4 py-3 text-sm text-zelux-white outline-none focus:border-zelux-cyan transition-colors duration-300 placeholder-zelux-gray/40" />
-                </div>
-              ))}
-              {!isAllDigitalCart && (
+              )}
+
+              {/* Saved address picker */}
+              {!isAllDigitalCart && savedAddresses.length > 0 && (
                 <div>
-                  <label className="text-xs text-zelux-gray tracking-wider block mb-1.5">Country *</label>
-                  <CountrySelect value={form.country} onChange={code => setForm({ ...form, country: code })} />
+                  <label className={labelCls}>Use Saved Address</label>
+                  <select value={selectedAddressId} onChange={e => applySavedAddress(e.target.value)} className={inputCls}>
+                    <option value="">Enter a new address</option>
+                    {savedAddresses.map(a => (
+                      <option key={a.id} value={a.id}>{a.label ? `${a.label} — ` : ''}{a.address}, {a.city}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Contact */}
+              <div className="bg-zelux-navy-card border border-zelux-gray-mid/20 rounded-2xl p-5">
+                <p className="text-[10px] tracking-widest uppercase text-zelux-cyan mb-4">Contact</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelCls}>Full Name</label>
+                    <input name="name" type="text" value={form.name} onChange={handleChange} className={inputCls} placeholder="John Smith" autoComplete="name" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Email</label>
+                    <input name="email" type="email" value={form.email} onChange={handleChange} className={inputCls} placeholder="you@email.com" autoComplete="email" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping */}
+              {!isAllDigitalCart && (
+                <div className="bg-zelux-navy-card border border-zelux-gray-mid/20 rounded-2xl p-5">
+                  <p className="text-[10px] tracking-widest uppercase text-zelux-cyan mb-4">Shipping Address</p>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>Phone</label>
+                        <input name="phone" type="tel" value={form.phone} onChange={handleChange} className={inputCls} placeholder="+1 555 000 0000" autoComplete="tel" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>ZIP / Postal Code</label>
+                        <input name="zip" type="text" value={form.zip} onChange={handleChange} className={inputCls} placeholder="10001" autoComplete="postal-code" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Street Address</label>
+                      <input name="address" type="text" value={form.address} onChange={handleChange} className={inputCls} placeholder="123 Main St, Apt 4B" autoComplete="street-address" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>City</label>
+                        <input name="city" type="text" value={form.city} onChange={handleChange} className={inputCls} placeholder="New York" autoComplete="address-level2" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>State</label>
+                        <input name="state" type="text" value={form.state} onChange={handleChange} className={inputCls} placeholder="NY" autoComplete="address-level1" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Country</label>
+                      <CountrySelect value={form.country} onChange={code => setForm({ ...form, country: code })} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="flex items-center gap-2 text-sm text-red-400 bg-red-400/10 border border-red-400/30 rounded-xl px-4 py-3">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  {error}
                 </div>
               )}
             </div>
-            {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
-          </div>
-          <div>
-            <h2 className="text-xs tracking-widest uppercase mb-6 text-zelux-cyan">Order Summary</h2>
-            <div className="bg-zelux-navy-card border border-zelux-gray-mid/30 rounded-2xl p-6">
-              <div className="space-y-3 mb-6">
-                {cart.map(i => (
-                  <div key={i.key} className="flex justify-between text-sm py-2 border-b border-zelux-gray-mid/20 text-zelux-gray">
-                    <span>{i.name} &times; {i.quantity}</span>
-                    <span className="text-zelux-white">${(i.price * i.quantity).toFixed(2)}</span>
+
+            {/* RIGHT — order summary */}
+            <div className="lg:col-span-2">
+              <div className="sticky top-24">
+                <div className="bg-zelux-navy-card border border-zelux-gray-mid/20 rounded-2xl p-5">
+                  <p className="text-[10px] tracking-widest uppercase text-zelux-cyan mb-4">Your Order</p>
+                  <div className="space-y-2 mb-4">
+                    {cart.map(i => (
+                      <div key={i.key} className="flex justify-between text-sm py-1.5 border-b border-zelux-gray-mid/10 last:border-0">
+                        <span className="text-zelux-gray truncate mr-2">{i.name} <span className="text-zelux-gray/60">×{i.quantity}</span></span>
+                        <span className="text-zelux-white flex-shrink-0">${(i.price * i.quantity).toFixed(2)}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-                <div className="flex justify-between text-sm text-zelux-gray"><span>Shipping</span><span className="text-zelux-white">{isAllDigitalCart ? 'N/A (digital)' : shipping === 0 ? 'Free' : `$${shipping}`}</span></div>
-                <div className="flex justify-between font-medium text-lg border-t border-zelux-gray-mid/30 pt-3 text-zelux-white"><span>Total</span><span className="text-zelux-cyan font-semibold">${grandTotal.toFixed(2)}</span></div>
+                  <div className="border-t border-zelux-gray-mid/20 pt-3 space-y-2 mb-5">
+                    <div className="flex justify-between text-sm text-zelux-gray">
+                      <span>Subtotal</span>
+                      <span>${total.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-zelux-gray">
+                      <span>Shipping</span>
+                      <span className={shipping === 0 ? 'text-emerald-400' : 'text-zelux-white'}>
+                        {isAllDigitalCart ? 'Free (digital)' : shipping === 0 ? 'Free' : `$${shipping}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-base font-semibold text-zelux-white pt-1 border-t border-zelux-gray-mid/20">
+                      <span>Total</span>
+                      <span className="text-zelux-cyan">${grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <button onClick={handleSubmit} disabled={loading || cart.length === 0}
+                    className="btn-glow w-full bg-zelux-cyan text-zelux-navy py-4 text-sm tracking-widest uppercase font-bold rounded-xl hover:shadow-glow-lg hover:scale-[1.01] transition-all duration-300 disabled:opacity-50 disabled:scale-100">
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-zelux-navy/30 border-t-zelux-navy rounded-full animate-spin"></span>
+                        Processing...
+                      </span>
+                    ) : `Pay $${grandTotal.toFixed(2)}`}
+                  </button>
+
+                  <div className="flex items-center justify-center gap-3 mt-4">
+                    <svg className="w-3.5 h-3.5 text-zelux-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <p className="text-[10px] text-zelux-gray tracking-wide">Secured by Stripe · SSL Encrypted</p>
+                  </div>
+                </div>
               </div>
-              <button onClick={handleSubmit} disabled={loading || cart.length === 0}
-                className="btn-glow w-full bg-zelux-cyan text-zelux-navy py-4 text-xs tracking-widest uppercase font-semibold rounded-full hover:shadow-glow-lg hover:scale-[1.02] transition-all duration-300 disabled:opacity-50">
-                {loading ? 'Processing...' : `Pay $${grandTotal.toFixed(2)}`}
-              </button>
-              <p className="text-xs text-zelux-gray text-center mt-4">Secured by Stripe &middot; SSL Encrypted</p>
             </div>
+
           </div>
         </div>
       </main>

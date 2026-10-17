@@ -84,7 +84,7 @@ export default function ProductPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-16 bg-zelux-navy min-h-screen">
+      <main className="pt-16 pb-20 sm:pb-0 bg-zelux-navy min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
 
@@ -287,6 +287,20 @@ export default function ProductPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
         <ReviewSection productId={product?.id} orderId={router.query.order || null} />
       </div>
+
+      {/* Mobile sticky CTA bar */}
+      {product.inStock !== false && (
+        <div className="fixed bottom-0 left-0 right-0 z-[150] sm:hidden bg-zelux-navy/95 backdrop-blur-md border-t border-zelux-gray-mid/30 px-4 py-3 flex items-center gap-3">
+          <div className="flex-1">
+            <p className="text-xs text-zelux-gray truncate">{product.name}</p>
+            <p className="text-sm font-semibold text-zelux-cyan">${product.price}</p>
+          </div>
+          <button onClick={handleAddToCart}
+            className={`px-6 py-3 text-xs tracking-widest uppercase font-bold rounded-xl transition-all duration-300 ${added ? 'bg-emerald-500 text-white' : 'bg-zelux-cyan text-zelux-navy'}`}>
+            {added ? '✓ Added' : 'Add to Cart'}
+          </button>
+        </div>
+      )}
 
       {/* Toast */}
       {toastMessage && (
