@@ -33,6 +33,13 @@ export default function Navbar() {
             <span className="block w-5 h-px bg-zelux-cyan mb-1.5"></span>
             <span className="block w-3 h-px bg-zelux-cyan transition-all group-hover:w-5"></span>
           </button>
+          {/* Desktop nav links */}
+          <div className="hidden lg:flex items-center gap-6">
+            <Link href="/" className="text-[11px] tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors duration-200">Shop</Link>
+            <Link href="/digital-assets" className="text-[11px] tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors duration-200">Digital</Link>
+            <Link href="/about" className="text-[11px] tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors duration-200">About</Link>
+            <Link href="/faq" className="text-[11px] tracking-widest uppercase text-zelux-gray hover:text-zelux-cyan transition-colors duration-200">FAQ</Link>
+          </div>
         </div>
 
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group">

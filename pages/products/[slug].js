@@ -31,7 +31,11 @@ export default function ProductPage() {
     if (!slug) return;
     fetch('/api/products-list')
       .then(r => r.json())
-      .then(data => { const found = data.find(p => p.slug === slug); setProduct(found || null); setLoading(false); })
+      .then(data => {
+        const found = data.find(p => p.slug === slug);
+        setProduct(found || null);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, [slug]);
 
