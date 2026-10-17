@@ -5,6 +5,31 @@ import Footer from '../../components/Footer';
 import ReviewSection from '../../components/ReviewSection';
 import { useCartStore, useWishlistStore } from '../../lib/store';
 
+function ReviewBadge({ productId }) {
+  const [stats, setStats] = useState(null);
+  useEffect(() => {
+    if (!productId) return;
+    fetch(`/api/reviews?productId=${productId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const avg = data.reduce((s, r) => s + r.rating, 0) / data.length;
+          setStats({ avg: Math.round(avg * 10) / 10, count: data.length });
+        }
+      }).catch(() => {});
+  }, [productId]);
+  if (!stats) return null;
+  return (
+    <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-zelux-navy/85 backdrop-blur-sm border border-amber-400/30 rounded-full px-2.5 py-1">
+      <svg className="w-3 h-3 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+      </svg>
+      <span className="text-[11px] font-semibold text-amber-400">{stats.avg}</span>
+      <span className="text-[10px] text-zelux-gray">({stats.count})</span>
+    </div>
+  );
+}
+
 export default function ProductPage() {
   const router = useRouter();
   const { slug } = router.query;
@@ -100,8 +125,8 @@ export default function ProductPage() {
     <>
       <Navbar />
       <main className="pt-16 pb-20 sm:pb-0 bg-zelux-navy min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
+          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-16">
 
             {/* Image section */}
             <div className="animate-fade-in">
@@ -116,8 +141,9 @@ export default function ProductPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-zelux-navy/30 via-transparent to-transparent pointer-events-none"></div>
 
                 {/* Badges */}
-                {product.badge && <span className="absolute top-4 left-4 bg-zelux-cyan text-zelux-navy text-[10px] px-3 py-1.5 rounded-full tracking-wider font-semibold shadow-glow-sm z-10">{product.badge}</span>}
-                {discount && <span className="absolute top-4 right-4 bg-red-500 text-white text-[10px] px-2.5 py-1.5 rounded-full font-semibold z-10">-{discount}%</span>}
+                {product.badge && <span className="absolute top-3 left-3 bg-zelux-cyan text-zelux-navy text-[9px] sm:text-[10px] px-2 sm:px-3 py-1 sm:py-1.5 rounded-full tracking-wider font-semibold shadow-glow-sm z-10">{product.badge}</span>}
+                {discount && <span className="absolute top-3 left-3 bg-red-500 text-white text-[9px] sm:text-[10px] px-2 py-1 rounded-full font-semibold z-10 mt-7">-{discount}%</span>}
+                <ReviewBadge productId={product?.id} />
 
                 {/* Arrow buttons — desktop */}
                 {imgs.length > 1 && (
@@ -168,15 +194,14 @@ export default function ProductPage() {
 
             {/* Product info */}
             <div className="flex flex-col animate-fade-in-up">
-              <p className="text-xs tracking-widest uppercase text-zelux-gray mb-2">{product.category}</p>
-              {product.badge && <span className="inline-block bg-zelux-cyan text-zelux-navy text-xs px-3 py-1 rounded-full tracking-wider font-semibold w-fit mb-3 shadow-glow-sm">{product.badge}</span>}
-              <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-zelux-white leading-tight">{product.name}</h1>
+              <p className="text-[9px] sm:text-xs tracking-widest uppercase text-zelux-gray mb-1">{product.category}</p>
+              <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4 text-zelux-white leading-tight">{product.name}</h1>
 
               {/* Price */}
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl font-semibold text-zelux-cyan">${product.price}</span>
-                {product.originalPrice && <span className="text-lg text-zelux-gray line-through">${product.originalPrice}</span>}
-                {discount && <span className="text-sm font-semibold text-green-400">Save {discount}%</span>}
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg sm:text-3xl font-bold text-zelux-cyan">${product.price}</span>
+                {product.originalPrice && <span className="text-sm sm:text-lg text-zelux-gray line-through">${product.originalPrice}</span>}
+                {discount && <span className="hidden sm:inline text-sm font-semibold text-green-400">Save {discount}%</span>}
               </div>
 
               {product.isDigital && (
@@ -186,16 +211,16 @@ export default function ProductPage() {
                 </div>
               )}
 
-              <p className="text-sm text-zelux-gray leading-relaxed mb-6">{product.description}</p>
+              <p className="hidden sm:block text-sm text-zelux-gray leading-relaxed mb-4">{product.description}</p>
 
               {/* Size selector */}
               {variantOptions?.length > 0 && (
-                <div className="mb-5">
-                  <p className="text-xs tracking-widest uppercase text-zelux-gray mb-3">{isApparel ? 'Select Size' : 'Select Variant'}</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-3 sm:mb-5">
+                  <p className="text-[9px] sm:text-xs tracking-widest uppercase text-zelux-gray mb-2">{isApparel ? 'Size' : 'Variant'}</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {variantOptions.map(v => (
                       <button key={v} onClick={() => setSelectedVariant(v)}
-                        className={`px-4 py-2.5 text-xs rounded-xl border tracking-wider transition-all duration-200 ${selectedVariant === v ? 'bg-zelux-cyan text-zelux-navy border-zelux-cyan shadow-glow-sm font-semibold' : 'bg-zelux-navy-card text-zelux-white border-zelux-gray-mid/40 hover:border-zelux-cyan/50 active:scale-95'}`}>
+                        className={`px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[10px] sm:text-xs rounded-lg sm:rounded-xl border transition-all duration-200 ${selectedVariant === v ? 'bg-zelux-cyan text-zelux-navy border-zelux-cyan font-semibold' : 'bg-zelux-navy-card text-zelux-white border-zelux-gray-mid/40 hover:border-zelux-cyan/50'}`}>
                         {v}
                       </button>
                     ))}
@@ -205,12 +230,12 @@ export default function ProductPage() {
 
               {/* Color selector */}
               {product.colors?.length > 0 && (
-                <div className="mb-5">
-                  <p className="text-xs tracking-widest uppercase text-zelux-gray mb-3">Select Color</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-3 sm:mb-5">
+                  <p className="text-[9px] sm:text-xs tracking-widest uppercase text-zelux-gray mb-2">Color</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {product.colors.map(c => (
                       <button key={c} onClick={() => setSelectedColor(c)}
-                        className={`px-4 py-2.5 text-xs rounded-xl border tracking-wider transition-all duration-200 ${selectedColor === c ? 'bg-zelux-cyan text-zelux-navy border-zelux-cyan shadow-glow-sm font-semibold' : 'bg-zelux-navy-card text-zelux-white border-zelux-gray-mid/40 hover:border-zelux-cyan/50 active:scale-95'}`}>
+                        className={`px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[10px] sm:text-xs rounded-lg sm:rounded-xl border transition-all duration-200 ${selectedColor === c ? 'bg-zelux-cyan text-zelux-navy border-zelux-cyan font-semibold' : 'bg-zelux-navy-card text-zelux-white border-zelux-gray-mid/40 hover:border-zelux-cyan/50'}`}>
                         {c}
                       </button>
                     ))}
@@ -236,41 +261,39 @@ export default function ProductPage() {
               )}
 
               {/* Qty + wishlist + share */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center border border-zelux-gray-mid/40 rounded-xl overflow-hidden">
-                  <button onClick={() => setQty(Math.max(1,qty-1))} className="w-11 h-11 flex items-center justify-center text-zelux-gray hover:text-zelux-cyan hover:bg-zelux-cyan/10 transition-all text-lg">&minus;</button>
-                  <span className="w-10 text-center text-sm text-zelux-white font-medium">{qty}</span>
-                  <button onClick={() => setQty(qty+1)} className="w-11 h-11 flex items-center justify-center text-zelux-gray hover:text-zelux-cyan hover:bg-zelux-cyan/10 transition-all text-lg">+</button>
+              <div className="flex items-center gap-2 mb-3 sm:mb-6">
+                <div className="flex items-center border border-zelux-gray-mid/40 rounded-lg overflow-hidden">
+                  <button onClick={() => setQty(Math.max(1,qty-1))} className="w-8 h-8 sm:w-11 sm:h-11 flex items-center justify-center text-zelux-gray hover:text-zelux-cyan transition-all text-base">&minus;</button>
+                  <span className="w-7 sm:w-10 text-center text-xs sm:text-sm text-zelux-white font-medium">{qty}</span>
+                  <button onClick={() => setQty(qty+1)} className="w-8 h-8 sm:w-11 sm:h-11 flex items-center justify-center text-zelux-gray hover:text-zelux-cyan transition-all text-base">+</button>
                 </div>
-                <button onClick={() => toggle(product)} className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all duration-300 ${isWishlisted ? 'bg-zelux-cyan border-zelux-cyan text-zelux-navy' : 'border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan'}`}>
-                  <svg className="w-5 h-5" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                <button onClick={() => toggle(product)} className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg border flex items-center justify-center transition-all duration-300 ${isWishlisted ? 'bg-zelux-cyan border-zelux-cyan text-zelux-navy' : 'border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan'}`}>
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                 </button>
                 <button onClick={() => { navigator.clipboard.writeText(window.location.href); showToast('Link copied'); }}
-                  className="w-11 h-11 rounded-xl border border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan flex items-center justify-center transition-all">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+                  className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg border border-zelux-gray-mid/40 text-zelux-gray hover:border-zelux-cyan/50 hover:text-zelux-cyan flex items-center justify-center transition-all">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
                 </button>
               </div>
 
               {/* Buy Now + Add to Cart */}
               {product.inStock === false ? (
-                <button disabled className="w-full py-4 text-xs tracking-widest uppercase font-medium bg-zelux-gray-light text-zelux-gray rounded-2xl cursor-not-allowed">Out of Stock</button>
+                <button disabled className="w-full py-3 text-xs tracking-widest uppercase font-medium bg-zelux-gray-light text-zelux-gray rounded-xl cursor-not-allowed">Out of Stock</button>
               ) : (
-                <div className="flex flex-col gap-3">
-                  {/* Buy Now — primary, Amazon-style */}
+                <div className="flex flex-col gap-2">
                   <button onClick={handleBuyNow}
-                    className="btn-glow w-full py-4 text-sm tracking-widest uppercase font-bold rounded-2xl bg-zelux-gold text-zelux-navy hover:brightness-105 hover:scale-[1.01] transition-all duration-200 active:scale-[0.99]">
+                    className="w-full py-3 sm:py-4 text-xs sm:text-sm tracking-widest uppercase font-bold rounded-xl bg-zelux-gold text-zelux-navy hover:brightness-105 transition-all duration-200 active:scale-[0.99]">
                     Buy Now
                   </button>
-                  {/* Add to Cart — secondary */}
                   <button onClick={handleAddToCart}
-                    className={`w-full py-3.5 text-xs tracking-widest uppercase font-semibold rounded-2xl border-2 transition-all duration-200 active:scale-[0.99] ${added ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-zelux-cyan/60 text-zelux-cyan hover:bg-zelux-cyan/10 hover:border-zelux-cyan'}`}>
-                    {added ? '✓ Added to Cart' : 'Add to Cart'}
+                    className={`w-full py-2.5 sm:py-3.5 text-[10px] sm:text-xs tracking-widest uppercase font-semibold rounded-xl border-2 transition-all duration-200 active:scale-[0.99] ${added ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-zelux-cyan/60 text-zelux-cyan hover:bg-zelux-cyan/10 hover:border-zelux-cyan'}`}>
+                    {added ? '✓ Added' : 'Add to Cart'}
                   </button>
                 </div>
               )}
 
               {/* Trust signals */}
-              <div className="flex gap-4 mt-4 flex-wrap">
+              <div className="hidden sm:flex gap-4 mt-4 flex-wrap">
                 {['Free shipping over $30','Secure checkout','Worldwide delivery'].map(t => (
                   <div key={t} className="flex items-center gap-1.5 text-[11px] text-zelux-gray">
                     <svg className="w-3 h-3 text-zelux-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
