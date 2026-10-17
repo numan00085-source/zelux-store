@@ -40,8 +40,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Comment is required' });
     }
 
-    // If ADMIN_KEY env var is not set, any non-empty adminKey grants admin access
-    const isAdmin = adminKey && (ADMIN_KEY === '' || adminKey === ADMIN_KEY);
+    // Check adminKey from body OR x-admin-key header (sent by admin proxy)
+    const headerKey = req.headers['x-admin-key'] || '';
+    const isAdmin = (adminKey && adminKey === ADMIN_KEY) ||
+                    (headerKey && headerKey === ADMIN_KEY) ||
+                    (adminKey && ADMIN_KEY === '') ||
+                    (headerKey && ADMIN_KEY === '');
     let verified = false;
 
     // Non-admin customers must have a delivered order
