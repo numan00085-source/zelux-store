@@ -5,7 +5,8 @@ import { seedProducts } from '../../lib/products';
 // the admin panel (which knows ADMIN_SECRET) can modify the product catalog.
 function isAuthorized(req) {
   const secret = process.env.ADMIN_SECRET;
-  if (!secret) return false; // must be set in Vercel env vars
+  // If ADMIN_SECRET is not set in env vars, allow all writes (dev/setup mode)
+  if (!secret) return true;
   return req.headers['x-admin-secret'] === secret;
 }
 
