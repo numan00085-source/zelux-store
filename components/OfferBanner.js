@@ -68,6 +68,14 @@ export default function OfferBanner() {
             {offer.discount} OFF
           </span>
         )}
+        {offer.linkUrl && (
+          <a
+            href={offer.linkUrl}
+            className={`text-[10px] font-bold tracking-widest uppercase border ${c.bg} ${c.text} px-3 py-1 rounded-full hover:brightness-110 transition-all`}
+          >
+            {offer.linkText || 'Shop Now'} →
+          </a>
+        )}
       </div>
       <button
         onClick={() => setDismissed(true)}
