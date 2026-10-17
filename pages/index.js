@@ -65,7 +65,7 @@ export default function Home() {
         <div className="bg-zelux-cyan/5 border-b border-zelux-cyan/10">
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-6 sm:gap-10 flex-wrap">
             {[
-              { icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4', label: 'Free Shipping $150+' },
+              { icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4', label: 'Shipping Only $5.99' },
               { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Secure Payment' },
               { icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', label: '30-Day Returns' },
               { icon: 'M13 10V3L4 14h7v7l9-11h-7z', label: 'Fast Delivery' },
