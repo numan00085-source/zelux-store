@@ -134,8 +134,8 @@ export default function ProductPage() {
     <>
       <Navbar />
       <main className="pt-16 pb-20 sm:pb-0 bg-zelux-navy min-h-screen">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
-          <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16">
 
             {/* Image section */}
             <div className="animate-fade-in">
@@ -205,14 +205,14 @@ export default function ProductPage() {
 
             {/* Product info */}
             <div className="flex flex-col animate-fade-in-up">
-              <p className="text-[9px] sm:text-xs tracking-widest uppercase text-zelux-gray mb-1">{product.category}</p>
-              <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4 text-zelux-white leading-tight">{product.name}</h1>
+              <p className="text-xs tracking-widest uppercase text-zelux-gray mb-1">{product.category}</p>
+              <h1 className="text-xl sm:text-3xl font-bold mb-3 text-zelux-white leading-tight">{product.name}</h1>
 
               {/* Price */}
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg sm:text-3xl font-bold text-zelux-cyan">${product.price}</span>
-                {product.originalPrice && <span className="text-sm sm:text-lg text-zelux-gray line-through">${product.originalPrice}</span>}
-                {discount && <span className="hidden sm:inline text-sm font-semibold text-green-400">Save {discount}%</span>}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl sm:text-3xl font-bold text-zelux-cyan">${product.price}</span>
+                {product.originalPrice && <span className="text-base sm:text-lg text-zelux-gray line-through">${product.originalPrice}</span>}
+                {discount && <span className="text-sm font-semibold text-green-400">-{discount}%</span>}
               </div>
 
               {product.isDigital && (
