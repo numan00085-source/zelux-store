@@ -10,11 +10,11 @@ export default function Cart() {
   const updateQty = useCartStore(s => s.updateQty);
   const total = useCartStore(s => s.total());
   const [hydrated, setHydrated] = useState(false);
-  const [shippingConfig, setShippingConfig] = useState({ freeShippingThreshold: 150, shippingFee: 9.99 });
+  const [shippingConfig, setShippingConfig] = useState({ freeShippingThreshold: 49, shippingFee: 5.99 });
 
   useEffect(() => {
     setHydrated(true);
-    fetch('/api/settings').then(r => r.json()).then(d => setShippingConfig({ freeShippingThreshold: d.freeShippingThreshold ?? 150, shippingFee: d.shippingFee ?? 9.99 })).catch(() => {});
+    fetch('/api/settings').then(r => r.json()).then(d => setShippingConfig({ freeShippingThreshold: d.freeShippingThreshold ?? 49, shippingFee: d.shippingFee ?? 5.99 })).catch(() => {});
   }, []);
 
   const { freeShippingThreshold, shippingFee } = shippingConfig;
